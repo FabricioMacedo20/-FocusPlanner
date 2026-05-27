@@ -205,11 +205,11 @@ function updateGreeting() {
     let greeting = `Olá, ${userName}!`;
 
     if (hour >= 6 && hour < 12) {
-        greeting = `Bom dia, ${userName}! 🌅`;
+        greeting = `Bom dia, ${userName}!`;
     } else if (hour >= 12 && hour < 18) {
-        greeting = `Boa tarde, ${userName}! ☀️`;
+        greeting = `Boa tarde, ${userName}!`;
     } else {
-        greeting = `Boa noite, ${userName}! 🌙`;
+        greeting = `Boa noite, ${userName}!`;
     }
 
     greetingElement.textContent = greeting;
