@@ -7,7 +7,6 @@ use App\Http\Controllers\GoalController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\RelatorioController;
-use App\Http\Controllers\NoteController;
 
 // ROTA DE DEBUG
 Route::get('/debug-login', function () {
@@ -37,7 +36,6 @@ Route::middleware('auth')->group(function () {
     // ==================== TAREFAS (Planejamento Diario) ====================
     Route::get('/dashboard', [TaskController::class, 'dashboard'])->name('dashboard');
     Route::get('/planner', [TaskController::class, 'planner'])->name('planner');
-    Route::get('/atividades-do-dia', [TaskController::class, 'atividadesDoDia'])->name('atividades-do-dia');
     Route::post('/task/store', [TaskController::class, 'store'])->name('task.store');
     Route::post('/task/update-status/{id}/{status}', [TaskController::class, 'updateStatus'])->name('task.update-status');
     Route::get('/task/complete/{id}', [TaskController::class, 'complete'])->name('task.complete');
@@ -67,18 +65,13 @@ Route::middleware('auth')->group(function () {
     // Rota customizada para marcar leitura como concluída
     Route::get('readings/{reading}/complete', [ReadingController::class, 'complete'])->name('readings.complete');
 
-    // ==================== ATIVIDADES DO DIA (Notas) ====================
-    // Resource de notas para o menu 'Atividades do dia'
-    Route::resource('notes', NoteController::class)->except(['show', 'create', 'edit']);
-    Route::post('notes/{note}/complete', [NoteController::class, 'complete'])->name('notes.complete');
-
     // ==================== ATIVIDADES DO DIA (Kanban de Tarefas) ====================
-    // Rotas para quadro kanban com 3 colunas (A Fazer, Em Andamento, Concluído)
-    // Usar /atividades-do-dia em vez das rotas antigas de NoteController
+    // Rotas de tarefas do planner e dashboard
 
     // ==================== RELATÓRIO (Análise de Produtividade) ====================
     // Exibe desempenho semanal, mensal e anual
     Route::get('/relatorio', [RelatorioController::class, 'index'])->name('relatorio');
+    Route::post('/relatorio/days', [RelatorioController::class, 'saveMonthlyDay'])->name('relatorio.save-day');
 
 });
 

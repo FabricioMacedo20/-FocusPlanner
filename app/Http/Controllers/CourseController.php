@@ -99,4 +99,16 @@ class CourseController extends Controller
 
         return view('courses.show', compact('course'));
     }
+
+    public function destroy(Course $course)
+    {
+        // 🔐 SEGURANÇA: Apenas o dono do curso pode excluí-lo
+        if ($course->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $course->delete();
+
+        return redirect()->route('courses.index');
+    }
 }

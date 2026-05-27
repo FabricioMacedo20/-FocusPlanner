@@ -92,142 +92,123 @@
     <!-- ==================== DESEMPENHO MENSAL ==================== -->
     <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
         
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">📆 Desempenho do Mês ({{ $monthlyPerformance['month'] }})</h2>
+        @php
+            $monthNames = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+        @endphp
 
-        <!-- Grid: Percentual + Gráfico de semanas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">📆 Desempenho do Mês ({{ $monthlyPerformance['month'] }})</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Escolha o mês e marque os dias em que foi produtivo.</p>
+            </div>
+            <form method="GET" action="{{ route('relatorio') }}" class="flex items-center gap-3">
+                <label for="month" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Mês:</label>
+                <select id="month" name="month" onchange="this.form.submit()" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @foreach (range(1, 12) as $monthNumber)
+                        <option value="{{ $monthNumber }}" {{ $monthlyPerformance['selectedMonth'] === $monthNumber ? 'selected' : '' }}>
+                            {{ ucfirst($monthNames[$monthNumber - 1]) }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
 
-            <!-- Card Principal: Percentual do Mês -->
-            <div class="flex items-center justify-center">
-                <div class="relative w-48 h-48">
-                    <!-- Círculo de fundo -->
-                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
-                        <!-- Círculo vazio -->
+        <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+
+            <div class="space-y-4">
+                <div class="relative w-full h-72 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center justify-center">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" stroke-width="8" class="dark:stroke-slate-700"/>
-                        
-                        <!-- Círculo preeenchido (progresso) -->
-                        @if ($monthlyPerformance['color'] === 'red')
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#ef4444" stroke-width="8" 
-                                    stroke-dasharray="{{ ($monthlyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @elseif ($monthlyPerformance['color'] === 'yellow')
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#f59e0b" stroke-width="8" 
-                                    stroke-dasharray="{{ ($monthlyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @else
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" stroke-width="8" 
-                                    stroke-dasharray="{{ ($monthlyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @endif
+                        <circle cx="100" cy="100" r="90" fill="none" stroke="{{ $monthlyPerformance['color'] === 'red' ? '#ef4444' : ($monthlyPerformance['color'] === 'yellow' ? '#f59e0b' : '#10b981') }}" stroke-width="8"
+                                stroke-dasharray="{{ ($monthlyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
+                                stroke-linecap="round"/>
                     </svg>
 
-                    <!-- Texto no centro -->
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <p class="text-5xl font-bold text-slate-900 dark:text-slate-100">
-                            {{ $monthlyPerformance['percentage'] }}%
-                        </p>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            {{ $monthlyPerformance['classification'] }}
-                        </p>
+                    <div class="relative text-center">
+                        <p id="monthly-percentage" class="text-5xl font-bold text-slate-900 dark:text-slate-100">{{ $monthlyPerformance['percentage'] }}%</p>
+                        <p id="monthly-classification" class="text-sm text-slate-600 dark:text-slate-400 mt-2">{{ $monthlyPerformance['classification'] }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Dias marcados</p>
+                        <p id="monthly-marked-days" class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ count($monthlyPerformance['markedDays']) }}/{{ $monthlyPerformance['totalDays'] }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Card: Desempenho por Semana -->
-            <div class="space-y-3">
-                <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-4">Detalhamento por Semana:</p>
-
-                @php $weeks = ['1ª', '2ª', '3ª', '4ª']; $daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; @endphp
-                @foreach ($monthlyPerformance['weeklyBreakdown'] as $index => $weekPerf)
-                    <div class="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
-                        <div class="mb-3">
-                            <span class="font-semibold text-slate-900 dark:text-slate-100">{{ $weeks[$index] }} semana</span>
-                        </div>
-
-                        <!-- Caixinhas dos dias da semana -->
-                        <div class="flex items-center gap-x-2">
-                            @foreach ($monthlyPerformance['weekDayActivities'][$index] as $dayIndex => $hasActivity)
-                                <div class="flex flex-col items-center">
-                                    <div class="w-8 h-8 rounded-md border-2 {{ $hasActivity ? 'bg-green-500 border-green-500' : 'bg-slate-200 dark:bg-slate-600 border-slate-300 dark:border-slate-500' }} transition-colors duration-200"></div>
-                                    <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $daysOfWeek[$dayIndex] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
+            <div>
+                <div class="rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                    <p class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-4">Clique nos dias produtivos</p>
+                    <div class="grid grid-cols-7 gap-2">
+                        @foreach ($monthlyPerformance['days'] as $day)
+                            <button type="button"
+                                data-day="{{ $day['day'] }}"
+                                class="day-toggle group flex flex-col items-center justify-center rounded-2xl border px-2 py-3 text-center text-sm font-semibold transition-all duration-200 focus:outline-none {{ $day['marked'] ? 'bg-green-500 text-white border-green-500' : 'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-600' }}"
+                                title="Clique para marcar o dia {{ $day['day'] }} como produtivo">
+                                <span class="text-base leading-none">{{ $day['day'] }}</span>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ $day['weekday'] }}</span>
+                            </button>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
             </div>
 
         </div>
-
     </div>
 
-    <!-- ==================== DESEMPENHO ANUAL (TABELA) ==================== -->
-    <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
-        
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">📈 Desempenho Anual ({{ now()->year }})</h2>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = '{{ csrf_token() }}';
+            const month = {{ $monthlyPerformance['selectedMonth'] }};
+            const year = {{ $monthlyPerformance['selectedYear'] }};
 
-        <!-- Tabela responsiva -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="border-b border-light-border dark:border-slate-700">
-                        <th class="px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Mês</th>
-                        <th class="px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Desempenho (%)</th>
-                        <th class="px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Barra Visual</th>
-                        <th class="px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Classificação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($yearlyPerformance as $monthData)
-                        <tr class="border-b border-light-border dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                            
-                            <!-- Mês -->
-                            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
-                                {{ $monthData['month'] }}
-                            </td>
+            document.querySelectorAll('.day-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const day = parseInt(this.dataset.day, 10);
+                    const isMarked = !this.classList.contains('bg-green-500');
 
-                            <!-- Percentual -->
-                            <td class="px-4 py-3 font-bold text-slate-900 dark:text-slate-100">
-                                {{ $monthData['percentage'] }}%
-                            </td>
+                    this.classList.toggle('bg-green-500', isMarked);
+                    this.classList.toggle('text-white', isMarked);
+                    this.classList.toggle('border-green-500', isMarked);
+                    this.classList.toggle('bg-slate-100', !isMarked);
+                    this.classList.toggle('dark:bg-slate-700', !isMarked);
+                    this.classList.toggle('text-slate-900', !isMarked);
+                    this.classList.toggle('dark:text-slate-100', !isMarked);
 
-                            <!-- Barra Visual -->
-                            <td class="px-4 py-3">
-                                <div class="w-32 bg-slate-300 dark:bg-slate-600 rounded-full h-2">
-                                    @if ($monthData['percentage'] <= 40)
-                                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ $monthData['percentage'] }}%"></div>
-                                    @elseif ($monthData['percentage'] <= 70)
-                                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full" style="width: {{ $monthData['percentage'] }}%"></div>
-                                    @else
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ $monthData['percentage'] }}%"></div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Classificação -->
-                            <td class="px-4 py-3">
-                                @if ($monthData['percentage'] <= 40)
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
-                                        Baixo
-                                    </span>
-                                @elseif ($monthData['percentage'] <= 70)
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
-                                        Médio
-                                    </span>
-                                @else
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
-                                        Alto
-                                    </span>
-                                @endif
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-    </div>
+                    fetch('{{ route('relatorio.save-day') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            month: month,
+                            year: year,
+                            day: day,
+                            marked: isMarked,
+                        }),
+                    })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Falha ao salvar');
+                        }
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        document.getElementById('monthly-percentage').textContent = data.percentage + '%';
+                        document.getElementById('monthly-classification').textContent = data.classification;
+                        document.getElementById('monthly-marked-days').textContent = data.markedDays + '/' + data.totalDays;
+                    })
+                    .catch(function () {
+                        window.location.reload();
+                    });
+                });
+            });
+        });
+    </script>
 
     <!-- ==================== INFORMAÇÕES DE REALISMO ==================== -->
     <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">

@@ -62,7 +62,7 @@
                                     </td>
                                     <td class="py-4 px-5 space-x-3 text-sm">
                                         <a href="{{ route('goals.edit', $goal) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Editar</a>
-                                        <a href="{{ route('goals.toggle-status', $goal) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">
+                                        <a href="{{ route('goals.toggle-status', $goal) }}" class="inline-flex items-center px-4 py-2 {{ $goal->status ? 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600' : 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600' }} text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">
                                             @if($goal->status)
                                                 Reabrir
                                             @else

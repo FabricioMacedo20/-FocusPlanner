@@ -97,11 +97,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('notes.index') }}" class="block px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-100 dark:hover:bg-slate-700 font-medium {{ request()->routeIs('notes.index') ? 'bg-blue-100 dark:bg-slate-700 text-blue-700 dark:text-blue-300' : '' }}">
-                    📝 Atividades do dia
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('relatorio') }}" class="block px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-100 dark:hover:bg-slate-700 font-medium {{ request()->routeIs('relatorio') ? 'bg-blue-100 dark:bg-slate-700 text-blue-700 dark:text-blue-300' : '' }}">
                     📈 Relatório
                 </a>

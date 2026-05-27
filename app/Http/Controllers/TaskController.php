@@ -28,15 +28,19 @@ class TaskController extends Controller
         $userId = Auth::id();
         $today = Carbon::now()->format('Y-m-d');
 
+        // Buscar tarefas do dia (tabela tasks)
         $tasksToday = Task::where('user_id', $userId)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $total = $tasksToday->count();
-        $completed = $tasksToday->where('status', 1)->count();
-        $pending = $tasksToday->where('status', 0)->count();
-        $rate = $total > 0 ? round(($completed / $total) * 100) : 0;
+        // Contar totais, concluídas e pendentes com base apenas em tasks
+        $totalTasksToday = $tasksToday->count();
+        $tasksCompletedToday = $tasksToday->where('status', true)->count();
+        $tasksPendingToday = $tasksToday->where('status', false)->count();
+
+        // Calcular produtividade
+        $productivity = $totalTasksToday > 0 ? round(($tasksCompletedToday / $totalTasksToday) * 100) : 0;
 
         $habitsCompletedToday = Habit::where('user_id', $userId)
             ->whereDate('created_at', $today)
@@ -60,10 +64,10 @@ class TaskController extends Controller
 
         return view('dashboard', compact(
             'tasksToday',
-            'total',
-            'completed',
-            'pending',
-            'rate',
+            'totalTasksToday',
+            'tasksCompletedToday',
+            'tasksPendingToday',
+            'productivity',
             'habitsCompletedToday',
             'activeGoals',
             'goalsCompletedToday',
@@ -72,88 +76,69 @@ class TaskController extends Controller
         ));
     }
 
-    // 📌 ATIVIDADES DO DIA: Exibe tarefas em um quadro kanban com 3 colunas
-    // Tarefas agrupadas por status: 0 = A Fazer, 2 = Em Andamento, 1 = Concluído
-    // Exibido em: resources/views/atividades.blade.php
-    public function atividadesDoDia()
-    {
-        $userId = Auth::id();
-        $today = Carbon::now()->format('Y-m-d');
-
-        // 📋 Buscar todas as tarefas do usuário do dia em ordem de criação
-        $tasks = Task::where('user_id', $userId)
-                    ->where('date', $today)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-
-        // Retornar tarefas para a view kanban
-        return view('atividades', compact('tasks'));
-    }
-
-
     //  PLANNER: Tela de planejamento diário com lista de tarefas
     // Exibido em: resources/views/planner.blade.php
     // Diferença da Dashboard: permite CRIAR e DELETAR tarefas
     public function planner()
     {
-        // 📋 Busca tarefas pendentes do usuário, ORDENADAS por data
-        // Relacionamento: User (logado) → User::id → Task::user_id
+        // 📋 Buscar tarefas pendentes do usuário no planner
         $tasks = Task::where('user_id', Auth::id())
                     ->where('status', false)
                     ->orderBy('date')
                     ->get();
 
-        // Tarefas concluídas hoje
+        // Buscar tarefas concluídas hoje
         $today = Carbon::now()->format('Y-m-d');
         $completedTasks = Task::where('user_id', Auth::id())
                     ->where('status', true)
-                    ->where('date', $today)
+                    ->whereDate('date', $today)
                     ->orderBy('date')
                     ->get();
 
         return view('planner', compact('tasks', 'completedTasks'));
-
     }
 
 
     public function store(Request $request)
     {
-
-        Task::create([
-
-            'user_id' => Auth::id(),
-
-            'title' => $request->title,
-
-            'date' => $request->date,
-
-            'priority' => $request->priority,
-
-            'status' => false
-
+        // Validar entrada para evitar dados inválidos
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'date' => 'required|date',
+            'priority' => 'required|in:baixa,media,alta',
         ]);
 
-        return redirect()->route('planner');
+        // Criar nova tarefa do dia no banco
+        Task::create([
+            'user_id' => Auth::id(),
+            'title' => $request->title,
+            'date' => Carbon::now()->format('Y-m-d'),
+            'priority' => $request->priority,
+            'status' => false // false = pendente, true = concluída
+        ]);
 
+        // Redirecionar para o planner após criar
+        return redirect()->route('planner');
     }
 
 
     public function complete($id)
     {
-
+        // Buscar tarefa pelo ID
         $task = Task::find($id);
 
+        // Verificar se a tarefa existe e pertence ao usuário logado
         if($task && $task->user_id == Auth::id())
         {
-
+            // Marcar tarefa como concluída
             $task->status = true;
 
+            // Salvar no banco de dados
             $task->save();
-
         }
 
-        return redirect()->route('dashboard');
-
+        // Redirecionar para o planner após concluir
+        return redirect()->route('planner');
     }
 
 
@@ -164,12 +149,10 @@ class TaskController extends Controller
 
         if($task && $task->user_id == Auth::id())
         {
-
             $task->delete();
-
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('planner');
 
     }
 

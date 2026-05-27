@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Habit;
+use App\Models\MonthlyReport;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -24,31 +25,126 @@ class RelatorioController extends Controller
         Carbon::setLocale('pt_BR');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
+        $selectedMonth = intval($request->query('month', Carbon::now()->month));
+        $selectedMonth = $selectedMonth >= 1 && $selectedMonth <= 12 ? $selectedMonth : Carbon::now()->month;
+        $selectedYear = Carbon::now()->year;
 
         // ========== DESEMPENHO SEMANAL ==========
-        
-        // Calcular desempenho da semana atual (segunda a domingo)
         $weeklyPerformance = $this->calculateWeeklyPerformance($userId);
 
-        // ========== DESEMPENHO MENSAL ==========
-        
-        // Calcular desempenho do mês atual (média das semanas)
-        $monthlyPerformance = $this->calculateMonthlyPerformance($userId);
+        // ========== DESEMPENHO MENSAL MANUAL ==========
+        $monthlyReport = $this->loadMonthlyReport($userId, $selectedYear, $selectedMonth);
+        $totalDays = Carbon::create($selectedYear, $selectedMonth, 1)->daysInMonth;
+        $markedDaysCount = count($monthlyReport['markedDays']);
+        $monthlyPerformance = $this->calculateManualMonthlyPerformance($markedDaysCount, $totalDays);
+        $monthlyPerformance['month'] = $this->monthNames[$selectedMonth - 1];
+        $monthlyPerformance['selectedMonth'] = $selectedMonth;
+        $monthlyPerformance['selectedYear'] = $selectedYear;
+        $monthlyPerformance['totalDays'] = $totalDays;
+        $monthlyPerformance['markedDays'] = $monthlyReport['markedDays'];
+        $monthlyPerformance['days'] = $monthlyReport['days'];
 
-        // ========== DESEMPENHO ANUAL (TODOS OS MESES) ==========
-        
-        // Calcular desempenho de cada mês do ano
-        $yearlyPerformance = $this->calculateYearlyPerformance($userId);
-
-        // Enviar dados para a view
         return view('relatorio', [
             'weeklyPerformance' => $weeklyPerformance,
             'monthlyPerformance' => $monthlyPerformance,
-            'yearlyPerformance' => $yearlyPerformance,
         ]);
+    }
+
+    private function loadMonthlyReport($userId, $year, $month)
+    {
+        $report = MonthlyReport::firstOrNew([
+            'user_id' => $userId,
+            'year' => $year,
+            'month' => $month,
+        ]);
+
+        $markedDays = $report->days_marked ?? [];
+        sort($markedDays);
+
+        $days = [];
+        $totalDays = Carbon::create($year, $month, 1)->daysInMonth;
+        for ($day = 1; $day <= $totalDays; $day++) {
+            $days[] = [
+                'day' => $day,
+                'weekday' => Carbon::create($year, $month, $day)->translatedFormat('D'),
+                'marked' => in_array($day, $markedDays),
+            ];
+        }
+
+        return [
+            'report' => $report,
+            'markedDays' => $markedDays,
+            'days' => $days,
+        ];
+    }
+
+    public function saveMonthlyDay(Request $request)
+    {
+        $data = $request->validate([
+            'month' => 'required|integer|min:1|max:12',
+            'year' => 'required|integer|min:1900|max:2100',
+            'day' => 'required|integer|min:1',
+            'marked' => 'required|boolean',
+        ]);
+
+        $totalDays = Carbon::create($data['year'], $data['month'], 1)->daysInMonth;
+        if ($data['day'] > $totalDays) {
+            return response()->json([
+                'message' => 'Dia inválido para o mês selecionado.',
+            ], 422);
+        }
+
+        $userId = Auth::id();
+        $report = MonthlyReport::firstOrNew([
+            'user_id' => $userId,
+            'year' => $data['year'],
+            'month' => $data['month'],
+        ]);
+
+        $markedDays = $report->days_marked ?? [];
+        $day = $data['day'];
+
+        if ($data['marked']) {
+            if (!in_array($day, $markedDays, true)) {
+                $markedDays[] = $day;
+            }
+        } else {
+            $markedDays = array_values(array_diff($markedDays, [$day]));
+        }
+
+        sort($markedDays);
+        $report->days_marked = $markedDays;
+        $report->save();
+
+        $totalDays = Carbon::create($data['year'], $data['month'], 1)->daysInMonth;
+        $monthlyPerformance = $this->calculateManualMonthlyPerformance(count($markedDays), $totalDays);
+
+        return response()->json([
+            'percentage' => $monthlyPerformance['percentage'],
+            'classification' => $monthlyPerformance['classification'],
+            'markedDays' => count($markedDays),
+            'totalDays' => $totalDays,
+            'selectedMonth' => $data['month'],
+        ]);
+    }
+
+    private function calculateManualMonthlyPerformance($markedDaysCount, $totalDays)
+    {
+        $performance = $totalDays > 0 ? ($markedDaysCount / $totalDays) * 100 : 0;
+        $performance = round($performance);
+
+        if ($performance >= 0 && $performance <= 40) {
+            return ['percentage' => $performance, 'classification' => 'Baixo', 'color' => 'red'];
+        }
+
+        if ($performance <= 70) {
+            return ['percentage' => $performance, 'classification' => 'Médio', 'color' => 'yellow'];
+        }
+
+        return ['percentage' => $performance, 'classification' => 'Alto', 'color' => 'green'];
     }
 
     /**
@@ -252,39 +348,6 @@ class RelatorioController extends Controller
      * - Desempenho (%)
      * - Se não houver dados, retorna 0%
      */
-    private function calculateYearlyPerformance($userId)
-    {
-        $yearlyData = [];
-
-        // Iterar pelos 12 meses do ano
-        for ($month = 1; $month <= 12; $month++) {
-            // Criar data para o primeiro dia do mês
-            $startMonth = Carbon::create(now()->year, $month, 1)->startOfMonth();
-            // Obter último dia do mês
-            $endMonth = $startMonth->copy()->endOfMonth();
-
-            // Calcular desempenho do mês
-            $performance = $this->calculatePerformanceBetweenDates($userId, $startMonth, $endMonth);
-
-            // Limitar máximo a 90%
-            if ($performance > 90) {
-                $performance = 90;
-            }
-
-            // Obter nome do mês em português
-            $monthName = $this->monthNames[$month - 1];
-
-            // Armazenar dados do mês
-            $yearlyData[] = [
-                'month' => $monthName,
-                'monthNumber' => $month,
-                'percentage' => $performance,
-            ];
-        }
-
-        return $yearlyData;
-    }
-
     /**
      * Calcula desempenho entre duas datas incluindo todas as atividades
      * 

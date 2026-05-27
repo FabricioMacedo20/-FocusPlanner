@@ -15,20 +15,6 @@ class NoteController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
-    {
-        $userId = Auth::id();
-        $today = Carbon::now()->format('Y-m-d');
-
-        // Buscar todas as notas do dia atual do usuário
-        $notes = Note::where('user_id', $userId)
-                    ->where('date', $today)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-
-        return view('notes.index', compact('notes'));
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -36,15 +22,18 @@ class NoteController extends Controller
             'content' => 'nullable|string',
         ]);
 
+        // Criar nota com user_id, data de hoje e status inicial
         Note::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
             'content' => $request->content,
-            'date' => Carbon::now()->format('Y-m-d'),
-            'status' => 'todo', // Nova nota começa como "A fazer"
+            'date' => Carbon::now()->format('Y-m-d'),  // Data de hoje
+            'status' => 'todo',  // Nova nota começa como "A fazer"
+            'completed' => false,  // Não está completa
         ]);
 
-        return redirect()->back()->with('success', 'Nota criada com sucesso!');
+        // Redirecionar para o planner após criar nova atividade
+        return redirect()->route('planner')->with('success', 'Atividade criada com sucesso!');
     }
 
     //  SALVAR NOTA: Atualizar conteúdo da nota
@@ -85,25 +74,31 @@ class NoteController extends Controller
 
     public function complete(Note $note)
     {
+        // Verificar se a nota pertence ao usuário logado
         if ($note->user_id !== Auth::id()) {
             abort(403);
         }
 
+        // Marcar nota como completada
         $note->update([
             'completed' => true,
         ]);
 
-        return redirect()->back()->with('success', 'Atividade do dia marcada como concluída!');
+        // Redirecionar para planner para manter o fluxo centralizado
+        return redirect()->route('planner')->with('success', 'Atividade marcada como concluída!');
     }
 
     public function destroy(Note $note)
     {
+        // Verificar se a nota pertence ao usuário logado
         if ($note->user_id !== Auth::id()) {
             abort(403);
         }
 
+        // Deletar a nota
         $note->delete();
 
-        return redirect()->back()->with('success', 'Atividade excluída com sucesso!');
+        // Redirecionar para planner para manter o fluxo centralizado
+        return redirect()->route('planner')->with('success', 'Atividade excluída com sucesso!');
     }
 }

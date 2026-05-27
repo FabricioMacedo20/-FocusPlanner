@@ -80,12 +80,10 @@
                                     </td>
                                     <td class="px-4 py-4 space-x-2">
                                         @if($task->status !== 1)
-                                            <form action="{{ route('task.complete', $task->id) }}" method="GET" class="inline-block">
-                                                <button type="submit" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-semibold">Concluir</button>
-                                            </form>
+                                            <a href="{{ route('task.complete', $task->id) }}" data-sync-dashboard="true" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #10b981; color: white; border-radius: 8px; font-weight: bold; text-decoration: none; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">Concluir</a>
                                         @endif
-                                        <form action="{{ route('task.delete', $task->id) }}" method="GET" class="inline-block" onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
-                                            <button type="submit" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold">Excluir</button>
+                                        <form action="{{ route('task.delete', $task->id) }}" method="GET" class="inline" data-sync-dashboard="true" onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
+                                            <button type="submit" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #dc2626; color: white; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">Excluir</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -98,42 +96,25 @@
     </div>
 </div>
 
-@endsection           
-            <div class="grid grid-cols-3 gap-4">
-                <!-- TOTAL A FAZER -->
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-slate-400 dark:text-slate-500">{{ $tasks->where('status', 0)->count() }}</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">A Fazer</p>
-                </div>
+<script>
+function markActivitiesUpdated() {
+    try {
+        localStorage.setItem('activitiesUpdatedAt', Date.now().toString());
+    } catch (error) {
+        console.warn('Não foi possível atualizar o evento de atividades:', error);
+    }
+}
 
-                <!-- TOTAL EM ANDAMENTO -->
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-blue-500">{{ $tasks->where('status', 2)->count() }}</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Em Andamento</p>
-                </div>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-sync-dashboard]').forEach(function (element) {
+        element.addEventListener('click', markActivitiesUpdated);
+    });
+    document.querySelectorAll('form[data-sync-dashboard]').forEach(function (form) {
+        form.addEventListener('submit', markActivitiesUpdated);
+    });
 
-                <!-- TOTAL CONCLUÍDO -->
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-green-500">{{ $tasks->where('status', 1)->count() }}</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Concluído</p>
-                </div>
-            </div>
-
-            <!-- FÓRMULA DE PRODUTIVIDADE -->
-            @php
-                $totalTarefas = $tasks->count();
-                $concluidas = $tasks->where('status', 1)->count();
-                $produtividade = $totalTarefas > 0 ? round(($concluidas / $totalTarefas) * 100) : 0;
-            @endphp
-            
-            <div class="mt-6 text-center">
-                <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                    Produtividade: <span class="text-blue-600 dark:text-blue-400">{{ $produtividade }}%</span>
-                </p>
-            </div>
-        </div>
-
-    </div>
-</div>
+    window.addEventListener('beforeunload', markActivitiesUpdated);
+});
+</script>
 
 @endsection

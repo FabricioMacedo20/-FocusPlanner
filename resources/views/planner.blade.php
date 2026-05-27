@@ -7,23 +7,23 @@
 
         <!-- Cabeçalho -->
         <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-            📋 Planejamento Diário
+            📝 Atividades do dia
         </h1>
 
         <!-- Card: Formulário de adição -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 hover:shadow-lg dark:hover:shadow-xl transition-all duration-300">
             <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2">
-                Nova tarefa
+                Nova atividade
             </h2>
 
-            <form method="POST" action="{{ route('task.store') }}" class="space-y-5">
+            <form method="POST" action="{{ route('task.store') }}" class="space-y-5" data-sync-dashboard="true">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input name="title" placeholder="Título da tarefa" 
                     class="bg-white dark:bg-slate-900 border-2 border-light-border dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 rounded-lg p-3 w-full focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition" required>
 
-                    <input type="date" name="date" 
+                    <input type="date" name="date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
                     class="bg-white dark:bg-slate-900 border-2 border-light-border dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg p-3 w-full focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition" required>
                 </div>
 
@@ -44,7 +44,7 @@
         <!-- Card: Lista de tarefas -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 overflow-hidden">
             <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2">
-                📌 Tarefas Pendentes ({{ $tasks->count() }})
+                    📌 Atividades Pendentes ({{ $tasks->count() }})
             </h2>
 
             <div class="overflow-x-auto">
@@ -89,8 +89,8 @@
                                 </td>
 
                                 <td class="py-4 px-5 space-x-3">
-                                    <a href="{{ route('task.complete', $task->id) }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Concluir</a>
-                                    <a href="{{ route('task.delete', $task->id) }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Excluir</a>
+                                    <a href="{{ route('task.complete', $task->id) }}" data-sync-dashboard="true" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Concluir</a>
+                                    <a href="{{ route('task.delete', $task->id) }}" data-sync-dashboard="true" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Excluir</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -100,8 +100,8 @@
 
             @if($tasks->isEmpty())
                 <div class="text-center py-12">
-                    <p class="text-slate-500 dark:text-slate-400 text-lg">📭 Nenhuma tarefa pendente</p>
-                    <p class="text-slate-400 dark:text-slate-500 text-sm mt-2">Crie uma nova tarefa para começar seu dia!</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-lg">📭 Nenhuma atividade pendente</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-sm mt-2">Crie uma nova atividade para começar seu dia!</p>
                 </div>
             @endif
 
@@ -131,5 +131,27 @@
 
     </div>
 </div>
+
+<script>
+function markActivitiesUpdated() {
+    try {
+        localStorage.setItem('activitiesUpdatedAt', Date.now().toString());
+    } catch (error) {
+        console.warn('Não foi possível atualizar o evento de atividades:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-sync-dashboard]').forEach(function (element) {
+        if (element.tagName === 'FORM') {
+            element.addEventListener('submit', markActivitiesUpdated);
+        } else {
+            element.addEventListener('click', markActivitiesUpdated);
+        }
+    });
+
+    window.addEventListener('beforeunload', markActivitiesUpdated);
+});
+</script>
 
 @endsection
