@@ -22,7 +22,22 @@ class CourseController extends Controller
         // Cada curso tem um progresso de 0-100% com barra visual no Tailwind
         $courses = Course::where('user_id', Auth::id())->get();
 
-        return view('courses.index', compact('courses'));
+        $totalCourses = $courses->count();
+        $coursesInProgress = $courses->where('progress', '>', 0)->where('progress', '<', 100)->count();
+        $coursesNotStarted = $courses->where('progress', 0)->count();
+        $averageProgress = $totalCourses > 0 ? round($courses->avg('progress')) : 0;
+        $featuredCourse = $courses->where('progress', '<', 100)->sortByDesc('progress')->first();
+        $completedCourses = $courses->where('progress', '>=', 100)->count();
+
+        if ($totalCourses === 0) {
+            $contextMessage = 'Você ainda não possui cursos cadastrados.';
+        } elseif ($completedCourses === $totalCourses) {
+            $contextMessage = 'Parabéns! Todos os cursos cadastrados foram concluídos.';
+        } else {
+            $contextMessage = 'Continue estudando para avançar em seus cursos.';
+        }
+
+        return view('courses.index', compact('courses', 'totalCourses', 'coursesInProgress', 'coursesNotStarted', 'averageProgress', 'featuredCourse', 'contextMessage'));
     }
 
     public function create()

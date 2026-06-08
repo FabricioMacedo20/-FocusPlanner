@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\Habit;
 use App\Models\MonthlyReport;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class RelatorioController extends Controller
@@ -48,10 +49,78 @@ class RelatorioController extends Controller
         $monthlyPerformance['activeGoals'] = \App\Models\Goal::where('user_id', $userId)->where('status', false)->count();
         $monthlyPerformance['activeCourses'] = \App\Models\Course::where('user_id', $userId)->where('progress', '<', 100)->count();
         $monthlyPerformance['activeReadings'] = \App\Models\Reading::where('user_id', $userId)->where('completed', false)->count();
+        $monthlyPerformance['monthlyGoalsCompleted'] = \App\Models\Goal::where('user_id', $userId)
+            ->where('status', true)
+            ->whereYear('updated_at', $selectedYear)
+            ->whereMonth('updated_at', $selectedMonth)
+            ->count();
+        $monthlyPerformance['monthlyCoursesProgressUpdated'] = \App\Models\Course::where('user_id', $userId)
+            ->whereYear('updated_at', $selectedYear)
+            ->whereMonth('updated_at', $selectedMonth)
+            ->count();
+        $monthlyPerformance['monthlyReadingsProgressUpdated'] = \App\Models\Reading::where('user_id', $userId)
+            ->whereYear('updated_at', $selectedYear)
+            ->whereMonth('updated_at', $selectedMonth)
+            ->count();
+
+        $previousMonth = Carbon::create($selectedYear, $selectedMonth, 1)->subMonth();
+        $previousMonthlyReport = $this->loadMonthlyReport($userId, $previousMonth->year, $previousMonth->month);
+        $previousPerformance = $this->calculateManualMonthlyPerformance(count($previousMonthlyReport['markedDays']), $previousMonth->daysInMonth);
+
+        $monthlyComparison = [
+            'current' => [
+                'label' => ucfirst($this->monthNames[$selectedMonth - 1]),
+                'percentage' => $monthlyPerformance['percentage'],
+                'markedDays' => count($monthlyPerformance['markedDays']),
+            ],
+            'previous' => [
+                'label' => ucfirst($this->monthNames[$previousMonth->month - 1]),
+                'percentage' => $previousPerformance['percentage'],
+                'markedDays' => count($previousMonthlyReport['markedDays']),
+            ],
+        ];
+
+        if ($monthlyComparison['current']['markedDays'] === 0 && $monthlyComparison['previous']['markedDays'] === 0) {
+            $monthlyComparison['message'] = 'Não há dados suficientes para comparação.';
+        } else {
+            $difference = $monthlyComparison['current']['percentage'] - $monthlyComparison['previous']['percentage'];
+            $differenceText = abs($difference) . '%';
+            if ($difference > 0) {
+                $monthlyComparison['message'] = "Seu desempenho aumentou {$differenceText} em relação ao mês anterior.";
+            } elseif ($difference < 0) {
+                $monthlyComparison['message'] = "Seu desempenho diminuiu {$differenceText} em relação ao mês anterior.";
+            } else {
+                $monthlyComparison['message'] = 'Seu desempenho se manteve estável em relação ao mês anterior.';
+            }
+        }
+
+        $summaryMetrics = [
+            'Tarefas' => round($weeklyPerformance['taskPerformance'] ?? 0),
+            'Hábitos' => round($weeklyPerformance['habitPerformance'] ?? 0),
+            'Metas' => round($weeklyPerformance['goalPerformance'] ?? 0),
+            'Cursos' => round($weeklyPerformance['coursePerformance'] ?? 0),
+            'Leituras' => round($weeklyPerformance['readingPerformance'] ?? 0),
+        ];
+
+        $bestIndicator = array_search(max($summaryMetrics), $summaryMetrics);
+        $attentionPoint = array_search(min($summaryMetrics), $summaryMetrics);
+        if ($bestIndicator === false) {
+            $bestIndicator = 'Sem registros suficientes';
+        }
+        if ($attentionPoint === false) {
+            $attentionPoint = 'Registre mais atividades para gerar insights.';
+        }
 
         return view('relatorio', [
             'weeklyPerformance' => $weeklyPerformance,
             'monthlyPerformance' => $monthlyPerformance,
+            'monthlyComparison' => $monthlyComparison,
+            'generalSummary' => [
+                'weekly' => $weeklyPerformance['percentage'],
+                'monthly' => $monthlyPerformance['percentage'],
+                'bestIndicator' => $bestIndicator,
+                'attentionPoint' => $attentionPoint,
+            ],
         ]);
     }
 
@@ -130,6 +199,28 @@ class RelatorioController extends Controller
             'markedDays' => count($markedDays),
             'totalDays' => $totalDays,
             'selectedMonth' => $data['month'],
+        ]);
+    }
+
+    public function resetStatistics(Request $request)
+    {
+        $request->validate([
+            'confirm_reset' => 'required|accepted',
+        ]);
+
+        $userId = Auth::id();
+
+        DB::transaction(function () use ($userId) {
+            \App\Models\Task::where('user_id', $userId)->update(['status' => false]);
+            \App\Models\Habit::where('user_id', $userId)->update(['last_completed_at' => null]);
+            \App\Models\Goal::where('user_id', $userId)->update(['status' => false]);
+            \App\Models\Course::where('user_id', $userId)->update(['progress' => 0]);
+            \App\Models\Reading::where('user_id', $userId)->update(['current_page' => 0, 'completed' => false]);
+            MonthlyReport::where('user_id', $userId)->delete();
+        });
+
+        return response()->json([
+            'message' => 'Estatísticas reiniciadas com sucesso.',
         ]);
     }
 
@@ -249,19 +340,40 @@ class RelatorioController extends Controller
         }
 
         // Retornar dados formatados incluindo estatísticas de todas as atividades
+        $feedbackMessage = 'Continue registrando suas atividades para manter o ritmo e melhorar seus resultados.';
+        $feedbackTitle = 'Médio';
+
+        if ($classification === 'Alto') {
+            $feedbackTitle = '🟢 Alto';
+            $feedbackMessage = 'Excelente desempenho nesta semana. Continue mantendo sua consistência.';
+        } elseif ($classification === 'Médio') {
+            $feedbackTitle = '🟡 Médio';
+            $feedbackMessage = 'Seu desempenho está evoluindo. Continue registrando suas atividades para melhorar seus resultados.';
+        } else {
+            $feedbackTitle = '🔴 Baixo';
+            $feedbackMessage = 'Há oportunidades para melhorar sua produtividade. Utilize o Planner e os demais recursos para acompanhar seu progresso.';
+        }
+
         return [
             'percentage' => $performance,
             'classification' => $classification,
+            'feedbackTitle' => $feedbackTitle,
+            'feedbackMessage' => $feedbackMessage,
             'color' => $color,
             'totalTasks' => $totalTasks,
             'completedTasks' => $completedTasks,
+            'taskPerformance' => round($taskPerformance),
             'totalHabits' => $totalHabits,
             'completedHabits' => $habitsCompleted,
+            'habitPerformance' => round($habitPerformance),
             'totalGoals' => $totalGoals,
             'completedGoals' => $goalsCompleted,
+            'goalPerformance' => round($goalPerformance),
             'activeGoals' => $activeGoals,
             'coursesUpdated' => $coursesUpdatedThisWeek,
+            'coursePerformance' => round($coursePerformance),
             'readingsUpdated' => $readingsUpdatedThisWeek,
+            'readingPerformance' => round($readingPerformance),
             'totalCourses' => \App\Models\Course::where('user_id', $userId)->count(),
             'totalReadings' => \App\Models\Reading::where('user_id', $userId)->where('completed', false)->count(),
             'startDate' => $startOfWeek->format('d/m/Y'),

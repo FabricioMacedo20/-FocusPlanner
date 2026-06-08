@@ -23,7 +23,28 @@ class GoalController extends Controller
         $goals = Goal::where('user_id', Auth::id())->where('status', false)->get();
         $completedGoals = Goal::where('user_id', Auth::id())->where('status', true)->get();
 
-        return view('goals.index', compact('goals', 'completedGoals'));
+        // Dados para o resumo
+        $totalActiveGoals = $goals->count();
+        $totalCompletedGoals = $completedGoals->count();
+        $totalGoals = $totalActiveGoals + $totalCompletedGoals;
+        $completionRate = $totalGoals > 0 ? round(($totalCompletedGoals / $totalGoals) * 100) : 0;
+
+        // Meta em destaque (buscar a meta marcada como is_featured = true)
+        $featuredGoal = Goal::where('user_id', Auth::id())->where('is_featured', true)->where('status', false)->first();
+        
+        // Se não houver meta em destaque, usar a primeira ativa
+        if (!$featuredGoal && $goals->count() > 0) {
+            $featuredGoal = $goals->first();
+        }
+
+        // Mensagem de contexto
+        if ($totalActiveGoals === 0) {
+            $contextMessage = "Todas as metas foram concluídas. Crie uma nova meta para continuar evoluindo.";
+        } else {
+            $contextMessage = "Você possui " . $totalActiveGoals . " meta" . ($totalActiveGoals > 1 ? "s" : "") . " em andamento. Continue avançando para alcançar seus objetivos.";
+        }
+
+        return view('goals.index', compact('goals', 'completedGoals', 'totalActiveGoals', 'totalCompletedGoals', 'completionRate', 'featuredGoal', 'contextMessage'));
     }
 
     public function create()
@@ -116,9 +137,32 @@ class GoalController extends Controller
         }
 
         //  ALTERNA: Se estava concluída (true), fica em andamento (false) e vice-versa
+        // Mantém o current_value como está (não altera automaticamente para 100%)
         $goal->update([
-            'status' => !$goal->status
+            'status' => !$goal->status,
+            'is_featured' => false  // Remover destaque ao desativar
         ]);
+
+        return redirect()->route('goals.index');
+    }
+
+    public function setFeatured(Goal $goal)
+    {
+        //  SEGURANÇA: Verifica se a meta pertence ao usuário logado
+        if ($goal->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        //  Verificar se a meta está ativa (status = false)
+        if ($goal->status === true) {
+            return redirect()->route('goals.index')->with('error', 'Apenas metas ativas podem ser definidas como principais.');
+        }
+
+        //  REMOVER destaque de todas as metas do usuário
+        Goal::where('user_id', Auth::id())->update(['is_featured' => false]);
+
+        //  DEFINIR esta meta como destaque
+        $goal->update(['is_featured' => true]);
 
         return redirect()->route('goals.index');
     }

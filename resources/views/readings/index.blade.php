@@ -14,6 +14,59 @@
             </a>
         </x-page-header>
 
+        <!-- RESUMO DAS LEITURAS -->
+        <div class="bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-2xl p-6 shadow-md dark:shadow-lg border border-sky-200 dark:border-sky-700/50">
+            <h2 class="text-lg font-bold text-sky-900 dark:text-sky-100 mb-4 flex items-center gap-2">
+                📊 Resumo das Leituras
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-sky-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Leituras em andamento</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $inProgressCount }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-emerald-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Leituras concluídas</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $completedCount }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-violet-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Total de páginas lidas</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $totalPagesRead }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-cyan-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Taxa de conclusão</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $completionRate }}%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEITURA EM DESTAQUE -->
+        <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 mt-6">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                📖 Leitura Atual
+            </h2>
+            @if(!$featuredReading)
+                <p class="text-slate-600 dark:text-slate-400">Nenhuma leitura em andamento.</p>
+            @else
+                @php
+                    $featuredPercent = $featuredReading->total_pages > 0 ? round(($featuredReading->current_page / $featuredReading->total_pages) * 100) : 0;
+                @endphp
+                <div class="space-y-3">
+                    <div class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $featuredReading->book_title }}</div>
+                    <div class="text-sm text-slate-600 dark:text-slate-400">{{ $featuredReading->current_page }} de {{ $featuredReading->total_pages }} páginas</div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+                        <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 dark:from-cyan-600 dark:to-cyan-700 h-3 rounded-full transition-all duration-500" style="width: {{ min($featuredPercent, 100) }}%"></div>
+                    </div>
+                    <div class="text-sm font-bold text-slate-900 dark:text-white">{{ $featuredPercent }}% concluído</div>
+                </div>
+            @endif
+        </div>
+
+        <!-- MENSAGEM CONTEXTUAL -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 flex items-start gap-3 mt-6">
+            <span class="text-2xl">💬</span>
+            <p class="text-slate-700 dark:text-slate-300 font-medium">{{ $contextMessage }}</p>
+        </div>
+
         <!-- Card principal -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 overflow-hidden">
             @if($readings->isEmpty())
@@ -52,10 +105,10 @@
                                             <a href="{{ route('readings.complete', $reading) }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Concluído</a>
                                         @endif
                                         <a href="{{ route('readings.edit', $reading) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Editar</a>
-                                        <form class="inline" method="POST" action="{{ route('readings.destroy', $reading) }}">
+                                        <form id="delete-reading-form-{{ $reading->id }}" class="inline" method="POST" action="{{ route('readings.destroy', $reading) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700" onclick="return confirm('Tem certeza que deseja excluir este registro de leitura?')">
+                                            <button type="button" data-delete-title="{{ $reading->book_title }}" data-form-id="delete-reading-form-{{ $reading->id }}" class="delete-confirm-button inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">
                                                 Excluir
                                             </button>
                                         </form>
@@ -86,6 +139,10 @@
             </div>
         </div>
         @endif
+
+        <div class="rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-300 mt-6">
+            <span class="font-semibold">ℹ️</span> O progresso da leitura é calculado pela quantidade de páginas lidas em relação ao total de páginas do livro. Exemplo: 60 páginas lidas de 280 páginas = 21%. Isso permite acompanhar a evolução da leitura de forma simples e objetiva.
+        </div>
 
     </div>
 </div>

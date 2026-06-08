@@ -29,7 +29,21 @@ class HabitController extends Controller
             ->whereDate('last_completed_at', $today)
             ->get();
 
-        return view('habits.index', compact('habits', 'completedHabitsToday'));
+        // Estatísticas para o resumo
+        $totalActiveHabits = $habits->count();
+        $completedCount = $completedHabitsToday->count();
+        $completionRate = $totalActiveHabits > 0 ? round(($completedCount / $totalActiveHabits) * 100) : 0;
+
+        // Mensagem motivacional baseada no desempenho
+        if ($completedCount === 0) {
+            $motivationalMessage = "Nenhum hábito concluído hoje. Comece agora para manter sua consistência.";
+        } elseif ($completedCount === $totalActiveHabits) {
+            $motivationalMessage = "Parabéns! Todos os hábitos planejados para hoje foram concluídos.";
+        } else {
+            $motivationalMessage = "Ótimo trabalho! Continue mantendo sua rotina.";
+        }
+
+        return view('habits.index', compact('habits', 'completedHabitsToday', 'totalActiveHabits', 'completedCount', 'completionRate', 'motivationalMessage'));
     }
 
     public function create()

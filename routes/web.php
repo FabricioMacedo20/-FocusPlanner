@@ -52,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('goals', GoalController::class)->except(['show']);
     // Rota customizada para alternar status da meta (concluída/em andamento)
     Route::get('goals/{goal}/toggle-status', [GoalController::class, 'toggleStatus'])->name('goals.toggle-status');
+    // Rota customizada para definir meta como principal
+    Route::get('goals/{goal}/set-featured', [GoalController::class, 'setFeatured'])->name('goals.set-featured');
 
     // ==================== CURSOS (Progresso em %) ====================
     // Resource = cria automaticamente CRUD completo sem 'show'
@@ -72,6 +74,7 @@ Route::middleware('auth')->group(function () {
     // Exibe desempenho semanal, mensal e anual
     Route::get('/relatorio', [RelatorioController::class, 'index'])->name('relatorio');
     Route::post('/relatorio/days', [RelatorioController::class, 'saveMonthlyDay'])->name('relatorio.save-day');
+    Route::post('/relatorio/reset', [RelatorioController::class, 'resetStatistics'])->name('relatorio.reset');
 
 });
 

@@ -17,13 +17,31 @@ class ReadingController extends Controller
 
     public function index()
     {
-        //  LISTAR: Mostra todos os livros do usuário com progresso de páginas (apenas ativos)
+        //  LISTAR: Mostra todos os livros do usuário com progresso de páginas
         // Exibido em: resources/views/readings/index.blade.php
         // Na view: percentual = (current_page / total_pages) * 100
         $readings = Reading::where('user_id', Auth::id())->where('completed', false)->get();
         $completedReadings = Reading::where('user_id', Auth::id())->where('completed', true)->get();
 
-        return view('readings.index', compact('readings', 'completedReadings'));
+        $totalReadings = $readings->count() + $completedReadings->count();
+        $inProgressCount = $readings->count();
+        $completedCount = $completedReadings->count();
+        $totalPagesRead = $readings->sum('current_page') + $completedReadings->sum('current_page');
+        $completionRate = $totalReadings > 0 ? round(($completedCount / $totalReadings) * 100) : 0;
+
+        $featuredReading = $readings->sortByDesc(function ($reading) {
+            return $reading->total_pages > 0 ? ($reading->current_page / $reading->total_pages) : 0;
+        })->first();
+
+        if ($totalReadings === 0) {
+            $contextMessage = 'Você não possui leituras em andamento. Adicione um novo livro para começar.';
+        } elseif ($completedCount === $totalReadings) {
+            $contextMessage = 'Parabéns! Todas as leituras cadastradas foram concluídas.';
+        } else {
+            $contextMessage = 'Continue registrando seu progresso para acompanhar sua evolução ao longo do tempo.';
+        }
+
+        return view('readings.index', compact('readings', 'completedReadings', 'totalReadings', 'inProgressCount', 'completedCount', 'totalPagesRead', 'completionRate', 'featuredReading', 'contextMessage'));
     }
 
     public function create()

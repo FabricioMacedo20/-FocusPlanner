@@ -82,8 +82,8 @@
                                         @if($task->status !== 1)
                                             <a href="{{ route('task.complete', $task->id) }}" data-sync-dashboard="true" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #10b981; color: white; border-radius: 8px; font-weight: bold; text-decoration: none; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">Concluir</a>
                                         @endif
-                                        <form action="{{ route('task.delete', $task->id) }}" method="GET" class="inline" data-sync-dashboard="true" onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
-                                            <button type="submit" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #dc2626; color: white; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">Excluir</button>
+                                        <form id="delete-task-form-{{ $task->id }}" action="{{ route('task.delete', $task->id) }}" method="GET" class="inline" data-sync-dashboard="true">
+                                            <button type="button" data-delete-title="{{ $task->title }}" data-form-id="delete-task-form-{{ $task->id }}" class="delete-confirm-button" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #dc2626; color: white; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">Excluir</button>
                                         </form>
                                     </td>
                                 </tr>

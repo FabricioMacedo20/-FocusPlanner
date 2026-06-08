@@ -129,6 +129,10 @@
         </div>
         @endif
 
+        <div class="rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-300">
+            <span class="font-semibold">ℹ️ Nota:</span> As atividades do dia ajudam no planejamento e organização da rotina. As tarefas cadastradas ficam disponíveis até serem concluídas ou removidas. Utilize as prioridades para identificar o que é mais importante e manter o foco nas atividades que exigem maior atenção.
+        </div>
+
     </div>
 </div>
 

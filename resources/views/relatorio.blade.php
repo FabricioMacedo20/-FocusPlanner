@@ -10,6 +10,34 @@
         <p class="text-slate-600 dark:text-slate-400 mt-2">Acompanhe sua produtividade semanal, mensal e anual</p>
     </div>
 
+    <!-- ==================== RESUMO GERAL ==================== -->
+    <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">📊 Resumo Geral</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Veja sua produtividade semanal e mensal com um ponto de atenção claro.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Produtividade semanal</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['weekly'] }}%</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Produtividade mensal</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['monthly'] }}%</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Melhor indicador</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['bestIndicator'] }}</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Ponto de atenção</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['attentionPoint'] }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== DESEMPENHO SEMANAL ==================== -->
     <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
         
@@ -70,7 +98,7 @@
                 </div>
 
                 <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas concluídas</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas concluídas nesta semana</p>
                     <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedGoals'] }}</p>
                 </div>
 
@@ -80,14 +108,19 @@
                 </div>
 
                 <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Cursos atualizados</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">📚 Cursos com progresso registrado</p>
                     <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['coursesUpdated'] }}</p>
                 </div>
 
                 <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Leituras atualizadas</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">📖 Leituras com progresso registrado</p>
                     <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['readingsUpdated'] }}</p>
                 </div>
+            </div>
+
+            <div class="mt-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ $weeklyPerformance['feedbackTitle'] }}</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">{{ $weeklyPerformance['feedbackMessage'] }}</p>
             </div>
 
         </div>
@@ -96,7 +129,7 @@
 
     <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
         <p class="text-sm text-slate-700 dark:text-slate-300">
-            Nota: Este relatório considera sempre o período de segunda-feira a domingo. O desempenho semanal é calculado com base nas atividades realizadas e registradas durante essa semana, apresentando uma visão geral da sua produtividade.
+            ℹ️ O desempenho semanal é calculado com base na média dos indicadores registrados durante a semana, considerando tarefas, hábitos, metas, cursos e leituras. Isso facilita a compreensão da porcentagem exibida.
         </p>
     </div>
 
@@ -122,6 +155,25 @@
                     @endforeach
                 </select>
             </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Metas concluídas neste mês</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyPerformance['monthlyGoalsCompleted'] }}</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">📚 Cursos com progresso registrado</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyPerformance['monthlyCoursesProgressUpdated'] }}</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">📖 Leituras com progresso registrado</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyPerformance['monthlyReadingsProgressUpdated'] }}</p>
+            </div>
+            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Dias produtivos</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ count($monthlyPerformance['markedDays']) }}</p>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
@@ -166,6 +218,24 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="mt-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">📈 Comparação Mensal</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div class="rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-4">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ $monthlyComparison['previous']['label'] }}</p>
+                    <p class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['previous']['percentage'] }}%</p>
+                </div>
+                <div class="rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-4">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ $monthlyComparison['current']['label'] }}</p>
+                    <p class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['current']['percentage'] }}%</p>
+                </div>
+                <div class="rounded-3xl bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 p-4">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Resultado</p>
+                    <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">{{ $monthlyComparison['message'] }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -218,6 +288,55 @@
                     });
                 });
             });
+
+            const resetButton = document.getElementById('reset-stats-button');
+            const resetModal = document.getElementById('reset-stats-modal');
+            const cancelReset = document.getElementById('cancel-reset-button');
+            const confirmReset = document.getElementById('confirm-reset-button');
+            const modalOverlay = document.getElementById('reset-stats-overlay');
+
+            function openResetModal() {
+                resetModal.classList.remove('hidden');
+                modalOverlay.classList.remove('hidden');
+            }
+
+            function closeResetModal() {
+                resetModal.classList.add('hidden');
+                modalOverlay.classList.add('hidden');
+            }
+
+            resetButton.addEventListener('click', openResetModal);
+            cancelReset.addEventListener('click', closeResetModal);
+            modalOverlay.addEventListener('click', closeResetModal);
+
+            confirmReset.addEventListener('click', function () {
+                confirmReset.disabled = true;
+                fetch('{{ route('relatorio.reset') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        confirm_reset: true,
+                    }),
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Falha ao reiniciar');
+                    }
+                    return response.json();
+                })
+                .then(function () {
+                    window.location.reload();
+                })
+                .catch(function () {
+                    confirmReset.disabled = false;
+                    closeResetModal();
+                    alert('Não foi possível reiniciar as estatísticas. Tente novamente.');
+                });
+            });
         });
     </script>
 
@@ -226,6 +345,50 @@
         <p class="text-sm text-slate-700 dark:text-slate-300">
             <strong>Nota:</strong> O percentual exibido é calculado automaticamente a partir dos dias marcados pelo usuário no mês selecionado. Quanto maior a frequência de registros produtivos, maior será o desempenho apresentado no relatório.
         </p>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+        <button id="reset-stats-button" type="button" class="inline-flex items-center gap-2 rounded-2xl bg-red-600 text-white px-5 py-3 text-sm font-semibold shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+            🔄 Reiniciar Estatísticas
+        </button>
+    </div>
+
+    <div id="reset-stats-overlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40"></div>
+    <div id="reset-stats-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6">
+            <div class="flex items-start gap-4">
+                <div class="rounded-2xl bg-red-500/10 text-red-700 dark:text-red-300 p-3">
+                    <span class="text-xl">⚠️</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100">⚠️ Confirmar Reinicialização</h3>
+                    <p class="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                        Deseja realmente reiniciar suas estatísticas?
+                        Esta ação irá redefinir os dados utilizados nos relatórios e indicadores de produtividade.
+                    </p>
+                    <div class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                        <p>Itens afetados:</p>
+                        <ul class="ml-5 list-disc">
+                            <li>Atividades do dia</li>
+                            <li>Hábitos</li>
+                            <li>Metas</li>
+                            <li>Cursos</li>
+                            <li>Leituras</li>
+                            <li>Relatórios e estatísticas</li>
+                        </ul>
+                        <p class="font-semibold text-slate-900 dark:text-slate-100 mt-2">Esta ação não poderá ser desfeita.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button id="cancel-reset-button" type="button" class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    Cancelar
+                </button>
+                <button id="confirm-reset-button" type="button" class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 transition">
+                    Confirmar Reinicialização
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>

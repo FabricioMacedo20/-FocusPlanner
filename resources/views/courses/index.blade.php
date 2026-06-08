@@ -14,6 +14,57 @@
             </a>
         </x-page-header>
 
+        <!-- RESUMO DOS CURSOS -->
+        <div class="bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-2xl p-6 shadow-md dark:shadow-lg border border-sky-200 dark:border-sky-700/50">
+            <h2 class="text-lg font-bold text-sky-900 dark:text-sky-100 mb-4 flex items-center gap-2">
+                📊 Resumo dos Cursos
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-sky-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Cursos cadastrados</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $totalCourses }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-amber-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Cursos em andamento</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $coursesInProgress }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-violet-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Cursos não iniciados</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $coursesNotStarted }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-emerald-100 dark:border-slate-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Progresso médio</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $averageProgress }}%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CURSO EM DESTAQUE -->
+        <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 mt-6">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                📚 Curso em Destaque
+            </h2>
+            @if($totalCourses === 0)
+                <p class="text-slate-600 dark:text-slate-400">Nenhum curso cadastrado.</p>
+            @elseif(!$featuredCourse)
+                <p class="text-slate-600 dark:text-slate-400">Todos os cursos cadastrados foram concluídos.</p>
+            @else
+                <div class="space-y-3">
+                    <div class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $featuredCourse->name }}</div>
+                    <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">{{ $featuredCourse->progress }}% concluído</div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+                        <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 dark:from-cyan-600 dark:to-cyan-700 h-3 rounded-full transition-all duration-500" style="width: {{ min($featuredCourse->progress, 100) }}%"></div>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        <!-- MENSAGEM CONTEXTUAL -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 flex items-start gap-3 mt-6">
+            <span class="text-2xl">💬</span>
+            <p class="text-slate-700 dark:text-slate-300 font-medium">{{ $contextMessage }}</p>
+        </div>
+
         <!-- Card principal -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 overflow-hidden">
             @if($courses->isEmpty())
@@ -46,10 +97,12 @@
                                     <td class="py-4 px-5 space-x-3 text-sm">
                                         <a href="{{ route('courses.show', $course) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Acessar Matéria</a>
                                         <a href="{{ route('courses.edit', $course) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Editar</a>
-                                        <form class="inline" method="POST" action="{{ route('courses.destroy', $course) }}">
+                                        <form id="delete-course-form-{{ $course->id }}" class="inline" method="POST" action="{{ route('courses.destroy', $course) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700" onclick="return confirm('Tem certeza que deseja excluir este curso?')">Excluir</button>
+                                            <button type="button" data-delete-title="{{ $course->name }}" data-form-id="delete-course-form-{{ $course->id }}" class="delete-confirm-button inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">
+                                                Excluir
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -58,6 +111,10 @@
                     </table>
                 </div>
             @endif
+        </div>
+
+        <div class="rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-300">
+            <span class="font-semibold">ℹ️ Nota:</span> O progresso dos cursos é definido pelo usuário e representa o percentual estimado de conteúdo já estudado. Isso permite acompanhar a evolução dos estudos ao longo do tempo.
         </div>
 
     </div>

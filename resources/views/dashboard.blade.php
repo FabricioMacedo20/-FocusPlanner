@@ -159,7 +159,9 @@
         @endif
     </div>
 
-</div>
+        <div class="rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-300 mt-6">
+            <span class="font-semibold">ℹ️</span> O Dashboard apresenta uma visão geral da sua produtividade diária. Os indicadores são atualizados automaticamente com base nas informações registradas em Atividades do Dia (Planner), Hábitos, Metas, Cursos e Leituras. Conforme novas informações são adicionadas ou concluídas, os dados exibidos são recalculados para refletir seu progresso atual.
+        </div>
 
 <script>
 const dashboardUrl = '{{ route('dashboard') }}';

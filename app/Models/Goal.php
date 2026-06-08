@@ -15,6 +15,7 @@ class Goal extends Model
         'target_value',     // Valor alvo (ex: 100 para 100%)
         'current_value',    // Valor atual (ex: 50, ja atingiu 50%)
         'status',           // Status da meta (true = concluída, false = em andamento)
+        'is_featured',      // Meta principal (true = principal, false = não)
     ];
 
     // Progresso calculado na VIEW como: (current_value / target_value) * 100
