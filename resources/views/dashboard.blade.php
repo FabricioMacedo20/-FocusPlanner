@@ -41,8 +41,31 @@
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 transition duration-300 hover:scale-105 hover:shadow-xl">
             <p class="text-sm text-slate-500 dark:text-slate-400">Produtividade</p>
             <p class="text-4xl font-bold text-slate-900 dark:text-white mt-4" id="dashboard-productivity">{{ $productivity }}%</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3" id="dashboard-productivity-note">
+                @if($productivity === 0)
+                    Nenhuma atividade concluída hoje. Que tal começar pelo Planner?
+                @elseif($productivity === 100)
+                    Parabéns! Todas as atividades planejadas para hoje foram concluídas.
+                @elseif($productivity > 50)
+                    Bom trabalho! Você já concluiu boa parte das atividades planejadas.
+                @else
+                    Continue avançando nas próximas tarefas para aumentar sua produtividade.
+                @endif
+            </p>
         </div>
     </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 transition duration-300 hover:shadow-xl" id="dashboard-daily-summary-card">
+        <p class="text-sm text-slate-500 dark:text-slate-400">Resumo do Dia</p>
+        <p class="text-lg font-semibold text-slate-900 dark:text-white mt-4" id="dashboard-daily-summary-text">
+            @if($totalTasksToday === 0 && $habitsCompletedToday === 0)
+                Você ainda não registrou atividades para hoje. Comece pelo Planner para acompanhar sua produtividade.
+            @else
+                Hoje você concluiu {{ $tasksCompletedToday }} tarefas, {{ $habitsCompletedToday }} hábitos e possui {{ $tasksPendingToday }} atividades pendentes.
+            @endif
+        </p>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/40 dark:to-slate-800 rounded-3xl p-6 shadow-sm border border-blue-200 dark:border-slate-700 transition duration-300 hover:scale-105 hover:shadow-xl">
             <p class="text-sm text-slate-500 dark:text-slate-400">Hábitos concluídos hoje</p>
@@ -51,35 +74,42 @@
 
         <div class="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-emerald-900/40 dark:to-emerald-800 rounded-3xl p-6 shadow-sm border border-green-200 dark:border-emerald-700 transition duration-300 hover:scale-105 hover:shadow-xl">
             <p class="text-sm text-slate-500 dark:text-slate-400">Metas ativas</p>
-            <p class="text-4xl font-bold text-slate-900 dark:text-white mt-4">{{ $activeGoals }}</p>
+            <p id="dashboard-active-goals" class="text-4xl font-bold text-slate-900 dark:text-white mt-4">{{ $activeGoals }}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3" id="dashboard-active-goal-note">
+                @if($activeGoalTitle)
+                    Próxima meta: {{ $activeGoalTitle }}
+                @else
+                    Nenhuma meta ativa cadastrada.
+                @endif
+            </p>
         </div>
     </div>
 
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-center justify-between gap-4 mb-6">
             <div>
-                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Adicionados hoje</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Resumo rápido das metas, hábitos e progressos.</p>
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Resumo rápido</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Visão geral dos dados mais importantes do seu dia.</p>
             </div>
             <a href="{{ route('planner') }}" class="text-sm font-semibold text-blue-600 dark:text-blue-300 hover:underline">Ir para Planner</a>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Metas</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $goalsCompletedToday }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Metas ativas</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeGoals }}</p>
             </div>
             <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Hábitos</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Hábitos concluídos hoje</p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $habitsCompletedToday }}</p>
             </div>
             <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Leituras</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $readingsCompletedToday }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Leituras em andamento</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeReadingsCount }}</p>
             </div>
             <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Cursos</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $coursesCompletedToday }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Cursos ativos</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeCoursesCount }}</p>
             </div>
         </div>
     </div>
@@ -95,7 +125,7 @@
 
         @if($tasksToday->isEmpty())
             <div class="text-center py-12 text-slate-500 dark:text-slate-400">
-                <p>Sem atividades para hoje. Adicione novas atividades no Planner.</p>
+                <p>Você ainda não possui atividades cadastradas para hoje. Adicione novas tarefas no Planner para começar seu acompanhamento.</p>
             </div>
         @else
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" id="dashboard-tasks-today-cards">
@@ -153,12 +183,20 @@ async function refreshDashboardData() {
         const sourceCompleted = doc.getElementById('dashboard-completed-tasks');
         const sourcePending = doc.getElementById('dashboard-pending-tasks');
         const sourceProductivity = doc.getElementById('dashboard-productivity');
+        const sourceProductivityNote = doc.getElementById('dashboard-productivity-note');
+        const sourceActiveGoals = doc.getElementById('dashboard-active-goals');
+        const sourceActiveGoalNote = doc.getElementById('dashboard-active-goal-note');
+        const sourceDailySummaryText = doc.getElementById('dashboard-daily-summary-text');
         const sourceTasksSection = doc.getElementById('dashboard-tasks-today-section');
 
         const targetTotal = document.getElementById('dashboard-total-tasks');
         const targetCompleted = document.getElementById('dashboard-completed-tasks');
         const targetPending = document.getElementById('dashboard-pending-tasks');
         const targetProductivity = document.getElementById('dashboard-productivity');
+        const targetProductivityNote = document.getElementById('dashboard-productivity-note');
+        const targetActiveGoals = document.getElementById('dashboard-active-goals');
+        const targetActiveGoalNote = document.getElementById('dashboard-active-goal-note');
+        const targetDailySummaryText = document.getElementById('dashboard-daily-summary-text');
         const targetTasksSection = document.getElementById('dashboard-tasks-today-section');
 
         if (sourceTotal && targetTotal) {
@@ -172,6 +210,18 @@ async function refreshDashboardData() {
         }
         if (sourceProductivity && targetProductivity) {
             targetProductivity.textContent = sourceProductivity.textContent.trim();
+        }
+        if (sourceProductivityNote && targetProductivityNote) {
+            targetProductivityNote.textContent = sourceProductivityNote.textContent.trim();
+        }
+        if (sourceActiveGoals && targetActiveGoals) {
+            targetActiveGoals.textContent = sourceActiveGoals.textContent.trim();
+        }
+        if (sourceActiveGoalNote && targetActiveGoalNote) {
+            targetActiveGoalNote.textContent = sourceActiveGoalNote.textContent.trim();
+        }
+        if (sourceDailySummaryText && targetDailySummaryText) {
+            targetDailySummaryText.textContent = sourceDailySummaryText.textContent.trim();
         }
         if (sourceTasksSection && targetTasksSection) {
             targetTasksSection.innerHTML = sourceTasksSection.innerHTML;

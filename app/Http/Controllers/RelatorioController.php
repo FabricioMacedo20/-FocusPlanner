@@ -35,17 +35,19 @@ class RelatorioController extends Controller
         // ========== DESEMPENHO SEMANAL ==========
         $weeklyPerformance = $this->calculateWeeklyPerformance($userId);
 
-        // ========== DESEMPENHO MENSAL MANUAL ==========
+        // ========== DESEMPENHO MENSAL REAL ==========
         $monthlyReport = $this->loadMonthlyReport($userId, $selectedYear, $selectedMonth);
         $totalDays = Carbon::create($selectedYear, $selectedMonth, 1)->daysInMonth;
-        $markedDaysCount = count($monthlyReport['markedDays']);
-        $monthlyPerformance = $this->calculateManualMonthlyPerformance($markedDaysCount, $totalDays);
+        $monthlyPerformance = $this->calculateManualMonthlyPerformance(count($monthlyReport['markedDays']), $totalDays);
         $monthlyPerformance['month'] = $this->monthNames[$selectedMonth - 1];
         $monthlyPerformance['selectedMonth'] = $selectedMonth;
         $monthlyPerformance['selectedYear'] = $selectedYear;
         $monthlyPerformance['totalDays'] = $totalDays;
         $monthlyPerformance['markedDays'] = $monthlyReport['markedDays'];
         $monthlyPerformance['days'] = $monthlyReport['days'];
+        $monthlyPerformance['activeGoals'] = \App\Models\Goal::where('user_id', $userId)->where('status', false)->count();
+        $monthlyPerformance['activeCourses'] = \App\Models\Course::where('user_id', $userId)->where('progress', '<', 100)->count();
+        $monthlyPerformance['activeReadings'] = \App\Models\Reading::where('user_id', $userId)->where('completed', false)->count();
 
         return view('relatorio', [
             'weeklyPerformance' => $weeklyPerformance,
@@ -186,9 +188,19 @@ class RelatorioController extends Controller
             ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
             ->count();
         $totalGoals = \App\Models\Goal::where('user_id', $userId)->count();
+        $activeGoals = \App\Models\Goal::where('user_id', $userId)->where('status', false)->count();
         $goalPerformance = $totalGoals > 0 ? ($goalsCompleted / $totalGoals) * 100 : 0;
 
         // ===== CURSOS =====
+        $coursesUpdatedThisWeek = \App\Models\Course::where('user_id', $userId)
+            ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
+            ->count();
+
+        // ===== LEITURAS =====
+        $readingsUpdatedThisWeek = \App\Models\Reading::where('user_id', $userId)
+            ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
+            ->count();
+
         $coursesAvgProgress = \App\Models\Course::where('user_id', $userId)
             ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
             ->avg('progress') ?? 0;
@@ -247,6 +259,9 @@ class RelatorioController extends Controller
             'completedHabits' => $habitsCompleted,
             'totalGoals' => $totalGoals,
             'completedGoals' => $goalsCompleted,
+            'activeGoals' => $activeGoals,
+            'coursesUpdated' => $coursesUpdatedThisWeek,
+            'readingsUpdated' => $readingsUpdatedThisWeek,
             'totalCourses' => \App\Models\Course::where('user_id', $userId)->count(),
             'totalReadings' => \App\Models\Reading::where('user_id', $userId)->where('completed', false)->count(),
             'startDate' => $startOfWeek->format('d/m/Y'),
@@ -270,12 +285,12 @@ class RelatorioController extends Controller
      * 
      * Média = (60 + 70 + 50 + 80) / 4 = 65%
      */
-    private function calculateMonthlyPerformance($userId)
+    private function calculateMonthlyPerformance($userId, $year, $month)
     {
-        // Obter primeiro dia do mês
-        $startOfMonth = Carbon::now()->startOfMonth();
-        // Obter último dia do mês
-        $endOfMonth = Carbon::now()->endOfMonth();
+        // Obter primeiro dia do mês selecionado
+        $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+        // Obter último dia do mês selecionado
+        $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
 
         // Dividir o mês em 4 semanas e calcular desempenho de cada
         $weekPerformances = [];
@@ -334,7 +349,7 @@ class RelatorioController extends Controller
             'percentage' => $performance,
             'classification' => $classification,
             'color' => $color,
-            'month' => $this->monthNames[Carbon::now()->month - 1],
+            'month' => $this->monthNames[$month - 1],
             'weeklyBreakdown' => $weekPerformances,
             'weekDayActivities' => $weekDayActivities,
         ];

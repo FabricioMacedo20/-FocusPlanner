@@ -5,10 +5,10 @@
 <div class="min-h-screen bg-light-bg dark:bg-slate-950 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 space-y-6 py-8">
 
-        <!-- Cabeçalho -->
-        <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-            📝 Atividades do dia
-        </h1>
+        <x-page-header
+            title="Atividades do dia"
+            description="Organize e acompanhe suas atividades diárias."
+        />
 
         <!-- Card: Formulário de adição -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 hover:shadow-lg dark:hover:shadow-xl transition-all duration-300">

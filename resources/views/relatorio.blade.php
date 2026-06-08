@@ -5,8 +5,8 @@
 <div class="max-w-7xl mx-auto space-y-8">
 
     <!-- Cabeçalho com título e descrição -->
-    <div class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/40 dark:to-blue-900/40 rounded-lg p-8 shadow-md border border-purple-200 dark:border-slate-700">
-        <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100">📈 Relatório de Desempenho</h1>
+    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/40 dark:to-cyan-900/40 rounded-lg p-8 shadow-md border border-blue-200 dark:border-slate-700">
+        <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100">Relatório de Desempenho</h1>
         <p class="text-slate-600 dark:text-slate-400 mt-2">Acompanhe sua produtividade semanal, mensal e anual</p>
     </div>
 
@@ -58,8 +58,8 @@
             </div>
 
             <!-- Card: Detalhes -->
-            <div class="space-y-4">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/40 dark:to-slate-800 rounded-lg p-6 border border-blue-200 dark:border-slate-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
                     <p class="text-sm text-slate-600 dark:text-slate-400">Tarefas Concluídas</p>
                     <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedTasks'] }}/{{ $weeklyPerformance['totalTasks'] }}</p>
                 </div>
@@ -69,24 +69,35 @@
                     <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedHabits'] }}/{{ $weeklyPerformance['totalHabits'] }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/40 dark:to-slate-800 rounded-lg p-6 border border-purple-200 dark:border-slate-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas Concluídas</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedGoals'] }}/{{ $weeklyPerformance['totalGoals'] }}</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas concluídas</p>
+                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedGoals'] }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/40 dark:to-slate-800 rounded-lg p-6 border border-amber-200 dark:border-slate-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Cursos Ativos</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['totalCourses'] }}</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas ativas</p>
+                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['activeGoals'] }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/40 dark:to-slate-800 rounded-lg p-6 border border-indigo-200 dark:border-slate-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Leituras Ativas</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['totalReadings'] }}</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Cursos atualizados</p>
+                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['coursesUpdated'] }}</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Leituras atualizadas</p>
+                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['readingsUpdated'] }}</p>
                 </div>
             </div>
 
         </div>
 
+    </div>
+
+    <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+        <p class="text-sm text-slate-700 dark:text-slate-300">
+            Nota: Este relatório considera sempre o período de segunda-feira a domingo. O desempenho semanal é calculado com base nas atividades realizadas e registradas durante essa semana, apresentando uma visão geral da sua produtividade.
+        </p>
     </div>
 
     <!-- ==================== DESEMPENHO MENSAL ==================== -->
@@ -213,7 +224,7 @@
     <!-- ==================== INFORMAÇÕES DE REALISMO ==================== -->
     <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
         <p class="text-sm text-slate-700 dark:text-slate-300">
-            <strong>Nota:</strong> Este sistema calcula o desempenho de forma realista. O desempenho máximo é limitado a 90%, simulando o comportamento real de produtividade humana. Dados são coletados de suas tarefas registradas no sistema.
+            <strong>Nota:</strong> O percentual exibido é calculado automaticamente a partir dos dias marcados pelo usuário no mês selecionado. Quanto maior a frequência de registros produtivos, maior será o desempenho apresentado no relatório.
         </p>
     </div>
 

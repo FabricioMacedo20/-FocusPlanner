@@ -46,8 +46,23 @@ class TaskController extends Controller
             ->whereDate('created_at', $today)
             ->count();
 
+        // Metas ativas no Dashboard devem seguir a mesma lógica do módulo Metas:
+        // status = false (em andamento) e não apenas current_value < target_value.
         $activeGoals = Goal::where('user_id', $userId)
-            ->whereRaw('current_value < target_value')
+            ->where('status', false)
+            ->count();
+
+        $activeGoalTitle = Goal::where('user_id', $userId)
+            ->where('status', false)
+            ->orderBy('created_at')
+            ->value('title');
+
+        $activeReadingsCount = Reading::where('user_id', $userId)
+            ->where('completed', false)
+            ->count();
+
+        $activeCoursesCount = Course::where('user_id', $userId)
+            ->where('progress', '<', 100)
             ->count();
 
         $goalsCompletedToday = Goal::where('user_id', $userId)
@@ -70,6 +85,9 @@ class TaskController extends Controller
             'productivity',
             'habitsCompletedToday',
             'activeGoals',
+            'activeGoalTitle',
+            'activeReadingsCount',
+            'activeCoursesCount',
             'goalsCompletedToday',
             'readingsCompletedToday',
             'coursesCompletedToday'

@@ -2,18 +2,17 @@
 
 @section('content')
 
-<div class="min-h-screen bg-light-bg dark:bg-slate-950 transition-colors duration-300">
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="min-h-screen bg-light-bg dark:bg-slate-950 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 space-y-6 py-8">
 
-        <!-- Header com título e botão -->
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-                🎯 Hábitos
-            </h1>
+        <x-page-header
+            title="Hábitos"
+            description="Gerencie seus hábitos e acompanhe sua evolução diária."
+        >
             <a href="{{ route('habits.create') }}" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 px-6 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
                 Novo hábito
             </a>
-        </div>
+        </x-page-header>
 
         <!-- Card principal -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 overflow-hidden">
