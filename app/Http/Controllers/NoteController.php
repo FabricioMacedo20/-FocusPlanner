@@ -18,8 +18,12 @@ class NoteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'content' => 'nullable|string',
+        ], [
+            'title.required' => 'O título é obrigatório.',
+            'title.max' => 'O título não pode ter mais de 255 caracteres.',
+            'title.not_regex' => 'O título não pode ficar em branco.',
         ]);
 
         // Criar nota com user_id, data de hoje e status inicial
@@ -46,8 +50,12 @@ class NoteController extends Controller
 
         //  Validação
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'content' => 'nullable|string',
+        ], [
+            'title.required' => 'O título é obrigatório.',
+            'title.max' => 'O título não pode ter mais de 255 caracteres.',
+            'title.not_regex' => 'O título não pode ficar em branco.',
         ]);
 
         //  Atualizar título e conteúdo

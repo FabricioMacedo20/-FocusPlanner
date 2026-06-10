@@ -20,11 +20,12 @@ class GoalController extends Controller
         //  LISTAR: Mostra todas as metas do usuário com progresso (%)
         // Exibido em: resources/views/goals/index.blade.php
         // Na view, o cálculo é: (current_value / target_value) * 100 = percentual
-        $goals = Goal::where('user_id', Auth::id())->where('status', false)->get();
+        $activeGoalsQuery = Goal::where('user_id', Auth::id())->where('status', false);
+        $goals = $activeGoalsQuery->paginate(5)->withQueryString();
         $completedGoals = Goal::where('user_id', Auth::id())->where('status', true)->get();
 
         // Dados para o resumo
-        $totalActiveGoals = $goals->count();
+        $totalActiveGoals = (clone $activeGoalsQuery)->count();
         $totalCompletedGoals = $completedGoals->count();
         $totalGoals = $totalActiveGoals + $totalCompletedGoals;
         $completionRate = $totalGoals > 0 ? round(($totalCompletedGoals / $totalGoals) * 100) : 0;
@@ -33,8 +34,8 @@ class GoalController extends Controller
         $featuredGoal = Goal::where('user_id', Auth::id())->where('is_featured', true)->where('status', false)->first();
         
         // Se não houver meta em destaque, usar a primeira ativa
-        if (!$featuredGoal && $goals->count() > 0) {
-            $featuredGoal = $goals->first();
+        if (!$featuredGoal && $totalActiveGoals > 0) {
+            $featuredGoal = Goal::where('user_id', Auth::id())->where('status', false)->first();
         }
 
         // Mensagem de contexto
@@ -59,10 +60,19 @@ class GoalController extends Controller
         //   - target_value: obrigatório, inteiro, mínimo 1
         //   - current_value: opcional, inteiro, mínimo 0
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'description' => 'nullable|string',
             'target_value' => 'required|integer|min:1',
             'current_value' => 'nullable|integer|min:0',
+        ], [
+            'title.required' => 'O título da meta é obrigatório.',
+            'title.max' => 'O título da meta não pode ter mais de 255 caracteres.',
+            'title.not_regex' => 'O título da meta não pode ficar em branco.',
+            'target_value.required' => 'O valor alvo é obrigatório.',
+            'target_value.integer' => 'O valor alvo deve ser um número inteiro.',
+            'target_value.min' => 'O valor alvo deve ser pelo menos 1.',
+            'current_value.integer' => 'O progresso atual deve ser um número inteiro.',
+            'current_value.min' => 'O progresso atual não pode ser negativo.',
         ]);
 
         //  GRAVA: Nova meta com dados do usuário logado
@@ -100,19 +110,18 @@ class GoalController extends Controller
         //  VALIDAÇÕES de atualização
         // Note: current_value aqui é REQUIRED (obrigatório) para atualizar
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'description' => 'nullable|string',
-            'target_value' => 'required|integer|min:1',
-            'current_value' => 'required|integer|min:0',
+        ], [
+            'title.required' => 'O título da meta é obrigatório.',
+            'title.max' => 'O título da meta não pode ter mais de 255 caracteres.',
+            'title.not_regex' => 'O título da meta não pode ficar em branco.',
         ]);
 
-        //  ATUALIZA: Salva os novos dados da meta
-        // Exemplo: usuário aumenta current_value aos poucos conforme progride
+        //  ATUALIZA: Salva somente os dados de edição da meta
         $goal->update([
             'title' => $request->title,
             'description' => $request->description,
-            'target_value' => $request->target_value,
-            'current_value' => $request->current_value,
         ]);
 
         return redirect()->route('goals.index');

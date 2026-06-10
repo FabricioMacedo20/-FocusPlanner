@@ -18,19 +18,20 @@ class HabitController extends Controller
 
     public function index()
     {
-        //  LISTAR: Mostra todos os hábitos do usuário logado
+        //  LISTAR: Mostra todos os hábitos do usuário logado com paginação
         // Exibido em: resources/views/habits/index.blade.php
         // Relacionamento: User (logado) → via Auth::id() → Habit::user_id
-        $habits = Habit::where('user_id', Auth::id())->get();
+        $habitsQuery = Habit::where('user_id', Auth::id());
+        $totalActiveHabits = (clone $habitsQuery)->count();
+        $habits = $habitsQuery->paginate(5)->withQueryString();
 
         // Hábitos completados hoje
-        $today = \Carbon\Carbon::now()->format('Y-m-d');
+        $today = Carbon::now()->format('Y-m-d');
         $completedHabitsToday = Habit::where('user_id', Auth::id())
             ->whereDate('last_completed_at', $today)
             ->get();
 
         // Estatísticas para o resumo
-        $totalActiveHabits = $habits->count();
         $completedCount = $completedHabitsToday->count();
         $completionRate = $totalActiveHabits > 0 ? round(($completedCount / $totalActiveHabits) * 100) : 0;
 
@@ -54,13 +55,17 @@ class HabitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'description' => 'nullable|string',
+        ], [
+            'name.required' => 'O nome do hábito é obrigatório.',
+            'name.max' => 'O nome do hábito não pode ter mais de 255 caracteres.',
+            'name.not_regex' => 'O nome do hábito não pode ficar em branco.',
         ]);
 
         Habit::create([
             'user_id' => Auth::id(),
-            'name' => $request->name,
+            'name' => trim($request->name),
             'description' => $request->description,
         ]);
 
@@ -86,8 +91,12 @@ class HabitController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'description' => 'nullable|string',
+        ], [
+            'name.required' => 'O nome do hábito é obrigatório.',
+            'name.max' => 'O nome do hábito não pode ter mais de 255 caracteres.',
+            'name.not_regex' => 'O nome do hábito não pode ficar em branco.',
         ]);
 
         $habit->update([

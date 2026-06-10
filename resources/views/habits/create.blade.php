@@ -26,8 +26,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Salvar</button>
-                <a href="{{ route('habits.index') }}" class="text-slate-300 hover:text-white">Cancelar</a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600">Salvar</button>
+                <a href="{{ route('habits.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-transparent dark:text-slate-300 dark:hover:text-white dark:border-slate-700">Cancelar</a>
             </div>
         </form>
     </div>

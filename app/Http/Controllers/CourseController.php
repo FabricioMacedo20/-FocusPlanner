@@ -20,14 +20,16 @@ class CourseController extends Controller
         // 📋 LISTAR: Mostra todos os cursos do usuário com progresso (%)
         // Exibido em: resources/views/courses/index.blade.php
         // Cada curso tem um progresso de 0-100% com barra visual no Tailwind
-        $courses = Course::where('user_id', Auth::id())->get();
+        $coursesQuery = Course::where('user_id', Auth::id());
+        $allCourses = (clone $coursesQuery)->get();
+        $courses = $coursesQuery->paginate(5)->withQueryString();
 
-        $totalCourses = $courses->count();
-        $coursesInProgress = $courses->where('progress', '>', 0)->where('progress', '<', 100)->count();
-        $coursesNotStarted = $courses->where('progress', 0)->count();
-        $averageProgress = $totalCourses > 0 ? round($courses->avg('progress')) : 0;
-        $featuredCourse = $courses->where('progress', '<', 100)->sortByDesc('progress')->first();
-        $completedCourses = $courses->where('progress', '>=', 100)->count();
+        $totalCourses = $allCourses->count();
+        $coursesInProgress = $allCourses->where('progress', '>', 0)->where('progress', '<', 100)->count();
+        $coursesNotStarted = $allCourses->where('progress', 0)->count();
+        $averageProgress = $totalCourses > 0 ? round($allCourses->avg('progress')) : 0;
+        $featuredCourse = $allCourses->where('progress', '<', 100)->sortByDesc('progress')->first();
+        $completedCourses = $allCourses->where('progress', '>=', 100)->count();
 
         if ($totalCourses === 0) {
             $contextMessage = 'Você ainda não possui cursos cadastrados.';
@@ -49,12 +51,21 @@ class CourseController extends Controller
     {
         // 🔈 VALIDAÇÕES antes de criar curso:
         //   - name: obrigatório, string, máximo 255 caracteres
-        //   - progress: opcional, inteiro de 0 a 100 (porcentagem)
+        //   - progress: obrigatório, inteiro de 0 a 100 (porcentagem)
         //   - content: opcional, string
         $request->validate([
-            'name' => 'required|string|max:255',
-            'progress' => 'nullable|integer|min:0|max:100',
-            'content' => 'nullable|string',
+            'name' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
+            'progress' => 'required|integer|min:0|max:100',
+            'content' => 'nullable|string|max:2000',
+        ], [
+            'name.required' => 'O nome do curso é obrigatório.',
+            'name.max' => 'O nome do curso não pode ter mais de 255 caracteres.',
+            'name.not_regex' => 'O nome do curso não pode ficar em branco.',
+            'progress.required' => 'O progresso é obrigatório.',
+            'progress.integer' => 'O progresso deve ser um número inteiro.',
+            'progress.min' => 'O progresso deve ser no mínimo 0%.',
+            'progress.max' => 'O progresso não pode ultrapassar 100%.',
+            'content.max' => 'O conteúdo não pode ultrapassar 2000 caracteres.',
         ]);
 
         // 📌 GRAVA: Novo curso com dados do usuário logado
@@ -89,9 +100,18 @@ class CourseController extends Controller
 
         // 🔈 VALIDAÇÕES de atualização
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'progress' => 'required|integer|min:0|max:100',  // OBRIGATÓRIO para atualizar
-            'content' => 'nullable|string',
+            'content' => 'nullable|string|max:2000',
+        ], [
+            'name.required' => 'O nome do curso é obrigatório.',
+            'name.max' => 'O nome do curso não pode ter mais de 255 caracteres.',
+            'name.not_regex' => 'O nome do curso não pode ficar em branco.',
+            'progress.required' => 'O progresso é obrigatório.',
+            'progress.integer' => 'O progresso deve ser um número inteiro.',
+            'progress.min' => 'O progresso deve ser no mínimo 0%.',
+            'progress.max' => 'O progresso não pode ultrapassar 100%.',
+            'content.max' => 'O conteúdo não pode ultrapassar 2000 caracteres.',
         ]);
 
         // 📌 ATUALIZA: Usuário incrementa progresso conforme avança no curso

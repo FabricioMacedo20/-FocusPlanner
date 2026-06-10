@@ -100,10 +100,10 @@
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="document.getElementById('new-note-modal').classList.add('hidden')"
-                        class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                        class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border-slate-700">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
                     Criar
                 </button>
             </div>
@@ -130,10 +130,10 @@
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="document.getElementById('edit-note-modal').classList.add('hidden')"
-                        class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                        class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border-slate-700">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
                     Salvar
                 </button>
             </div>

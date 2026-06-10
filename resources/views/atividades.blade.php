@@ -83,7 +83,7 @@
                                             <a href="{{ route('task.complete', $task->id) }}" data-sync-dashboard="true" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #10b981; color: white; border-radius: 8px; font-weight: bold; text-decoration: none; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">Concluir</a>
                                         @endif
                                         <form id="delete-task-form-{{ $task->id }}" action="{{ route('task.delete', $task->id) }}" method="GET" class="inline" data-sync-dashboard="true">
-                                            <button type="button" data-delete-title="{{ $task->title }}" data-form-id="delete-task-form-{{ $task->id }}" class="delete-confirm-button" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #dc2626; color: white; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">Excluir</button>
+                                            <button type="button" data-task-title="{{ $task->title }}" data-form-id="delete-task-form-{{ $task->id }}" class="delete-task-button" style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #dc2626; color: white; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">Excluir</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -96,25 +96,101 @@
     </div>
 </div>
 
+<div id="delete-task-overlay" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40"></div>
+<div id="delete-task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0" id="delete-task-modal-card">
+        <div class="flex items-start gap-4">
+            <div class="rounded-2xl bg-red-500/10 text-red-700 dark:text-red-300 p-3">
+                <span class="text-2xl">⚠️</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">⚠️ Excluir Atividade</h3>
+                <p class="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                    Tem certeza que deseja excluir a atividade:
+                </p>
+                <p class="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100" id="delete-task-title">"Título da atividade"</p>
+                <p class="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                    Esta ação removerá permanentemente a atividade selecionada e não poderá ser desfeita.
+                </p>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button id="cancel-delete-task" type="button" class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                ❌ Cancelar
+            </button>
+            <button id="confirm-delete-task" type="button" class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 transition">
+                🗑️ Excluir Atividade
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-function markActivitiesUpdated() {
-    try {
-        localStorage.setItem('activitiesUpdatedAt', Date.now().toString());
-    } catch (error) {
-        console.warn('Não foi possível atualizar o evento de atividades:', error);
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-task-button');
+        const modal = document.getElementById('delete-task-modal');
+        const overlay = document.getElementById('delete-task-overlay');
+        const titleNode = document.getElementById('delete-task-title');
+        const confirmButton = document.getElementById('confirm-delete-task');
+        const cancelButton = document.getElementById('cancel-delete-task');
+        const modalCard = document.getElementById('delete-task-modal-card');
+        let currentForm = null;
+
+        function openModal(taskTitle, formId) {
+            currentForm = document.getElementById(formId);
+            titleNode.textContent = '"' + taskTitle + '"';
+            modal.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modalCard.classList.remove('scale-95', 'opacity-0');
+            });
+        }
+
+        function closeModal() {
+            modalCard.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                overlay.classList.add('hidden');
+            }, 200);
+            currentForm = null;
+        }
+
+        deleteButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const taskTitle = this.dataset.taskTitle;
+                const formId = this.dataset.formId;
+                openModal(taskTitle, formId);
+            });
+        });
+
+        confirmButton.addEventListener('click', function () {
+            if (currentForm) {
+                currentForm.submit();
+            }
+        });
+
+        cancelButton.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+    });
+
+    function markActivitiesUpdated() {
+        try {
+            localStorage.setItem('activitiesUpdatedAt', Date.now().toString());
+        } catch (error) {
+            console.warn('Não foi possível atualizar o evento de atividades:', error);
+        }
     }
-}
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-sync-dashboard]').forEach(function (element) {
-        element.addEventListener('click', markActivitiesUpdated);
-    });
-    document.querySelectorAll('form[data-sync-dashboard]').forEach(function (form) {
-        form.addEventListener('submit', markActivitiesUpdated);
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-sync-dashboard]').forEach(function (element) {
+            element.addEventListener('click', markActivitiesUpdated);
+        });
+        document.querySelectorAll('form[data-sync-dashboard]').forEach(function (form) {
+            form.addEventListener('submit', markActivitiesUpdated);
+        });
 
-    window.addEventListener('beforeunload', markActivitiesUpdated);
-});
+        window.addEventListener('beforeunload', markActivitiesUpdated);
+    });
 </script>
 
 @endsection

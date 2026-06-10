@@ -44,7 +44,7 @@
         <!-- Card: Lista de tarefas -->
         <div class="bg-light-card dark:bg-slate-800 rounded-2xl p-6 shadow-md dark:shadow-lg border border-light-border dark:border-slate-700 overflow-hidden">
             <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2">
-                    📌 Atividades Pendentes ({{ $tasks->count() }})
+                    📌 Atividades Pendentes ({{ $tasks->total() }})
             </h2>
 
             <div class="overflow-x-auto">
@@ -72,11 +72,11 @@
 
                                 <td class="py-4 px-5">
                                     @if($task->priority === 'alta')
-                                        <span class="px-4 py-2 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm">🔴 Alta</span>
+                                        <span class="px-4 py-2 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm">Alta</span>
                                     @elseif($task->priority === 'media')
-                                        <span class="px-4 py-2 bg-yellow-500 text-white rounded-full text-xs font-bold shadow-sm">🟡 Média</span>
+                                        <span class="px-4 py-2 bg-yellow-500 text-white rounded-full text-xs font-bold shadow-sm">Média</span>
                                     @else
-                                        <span class="px-4 py-2 bg-green-500 text-white rounded-full text-xs font-bold shadow-sm">🟢 Baixa</span>
+                                        <span class="px-4 py-2 bg-green-500 text-white rounded-full text-xs font-bold shadow-sm">Baixa</span>
                                     @endif
                                 </td>
 
@@ -90,13 +90,21 @@
 
                                 <td class="py-4 px-5 space-x-3">
                                     <a href="{{ route('task.complete', $task->id) }}" data-sync-dashboard="true" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Concluir</a>
-                                    <a href="{{ route('task.delete', $task->id) }}" data-sync-dashboard="true" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Excluir</a>
+                                    <form id="delete-planner-task-form-{{ $task->id }}" action="{{ route('task.delete', $task->id) }}" method="GET" class="inline" data-sync-dashboard="true">
+                                        <button type="button" data-task-title="{{ $task->title }}" data-form-id="delete-planner-task-form-{{ $task->id }}" class="delete-planner-task-button inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Excluir</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+
+            @if($tasks->hasPages())
+                <div class="mt-6">
+                    {{ $tasks->links() }}
+                </div>
+            @endif
 
             @if($tasks->isEmpty())
                 <div class="text-center py-12">
@@ -136,7 +144,83 @@
     </div>
 </div>
 
+<div id="delete-planner-task-overlay" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40"></div>
+<div id="delete-planner-task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0" id="delete-planner-task-modal-card">
+        <div class="flex items-start gap-4">
+            <div class="rounded-2xl bg-red-500/10 text-red-700 dark:text-red-300 p-3">
+                <span class="text-2xl">⚠️</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">⚠️ Excluir Atividade</h3>
+                <p class="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                    Tem certeza que deseja excluir a atividade:
+                </p>
+                <p class="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100" id="delete-planner-task-title">"Título da atividade"</p>
+                <p class="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                    Esta ação removerá permanentemente a atividade selecionada e não poderá ser desfeita.
+                </p>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button id="cancel-delete-planner-task" type="button" class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                ❌ Cancelar
+            </button>
+            <button id="confirm-delete-planner-task" type="button" class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 transition">
+                🗑️ Excluir Atividade
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-planner-task-button');
+        const modal = document.getElementById('delete-planner-task-modal');
+        const overlay = document.getElementById('delete-planner-task-overlay');
+        const titleNode = document.getElementById('delete-planner-task-title');
+        const confirmButton = document.getElementById('confirm-delete-planner-task');
+        const cancelButton = document.getElementById('cancel-delete-planner-task');
+        const modalCard = document.getElementById('delete-planner-task-modal-card');
+        let currentForm = null;
+
+        function openModal(taskTitle, formId) {
+            currentForm = document.getElementById(formId);
+            titleNode.textContent = '"' + taskTitle + '"';
+            modal.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modalCard.classList.remove('scale-95', 'opacity-0');
+            });
+        }
+
+        function closeModal() {
+            modalCard.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                overlay.classList.add('hidden');
+            }, 200);
+            currentForm = null;
+        }
+
+        deleteButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const taskTitle = this.dataset.taskTitle;
+                const formId = this.dataset.formId;
+                openModal(taskTitle, formId);
+            });
+        });
+
+        confirmButton.addEventListener('click', function () {
+            if (currentForm) {
+                currentForm.submit();
+            }
+        });
+
+        cancelButton.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+    });
+
 function markActivitiesUpdated() {
     try {
         localStorage.setItem('activitiesUpdatedAt', Date.now().toString());

@@ -66,49 +66,26 @@
         </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/40 dark:to-slate-800 rounded-3xl p-6 shadow-sm border border-blue-200 dark:border-slate-700 transition duration-300 hover:scale-105 hover:shadow-xl">
-            <p class="text-sm text-slate-500 dark:text-slate-400">Hábitos concluídos hoje</p>
-            <p class="text-4xl font-bold text-slate-900 dark:text-white mt-4">{{ $habitsCompletedToday }}</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-emerald-900/40 dark:to-emerald-800 rounded-3xl p-6 shadow-sm border border-green-200 dark:border-emerald-700 transition duration-300 hover:scale-105 hover:shadow-xl">
-            <p class="text-sm text-slate-500 dark:text-slate-400">Metas ativas</p>
-            <p id="dashboard-active-goals" class="text-4xl font-bold text-slate-900 dark:text-white mt-4">{{ $activeGoals }}</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3" id="dashboard-active-goal-note">
-                @if($activeGoalTitle)
-                    Próxima meta: {{ $activeGoalTitle }}
-                @else
-                    Nenhuma meta ativa cadastrada.
-                @endif
-            </p>
-        </div>
-    </div>
-
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-        <div class="flex items-center justify-between gap-4 mb-6">
-            <div>
-                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Resumo rápido</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Visão geral dos dados mais importantes do seu dia.</p>
-            </div>
-            <a href="{{ route('planner') }}" class="text-sm font-semibold text-blue-600 dark:text-blue-300 hover:underline">Ir para Planner</a>
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Resumo rápido</h2>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Metas ativas</p>
+            <div class="rounded-2xl bg-green-50 dark:bg-emerald-950/20 border border-green-200 dark:border-emerald-700 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
+                <p class="text-sm text-emerald-700 dark:text-emerald-200">Metas ativas</p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeGoals }}</p>
             </div>
-            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Hábitos concluídos hoje</p>
+            <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-700 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
+                <p class="text-sm text-emerald-700 dark:text-emerald-200">Hábitos concluídos hoje</p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $habitsCompletedToday }}</p>
             </div>
-            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Leituras em andamento</p>
+            <div class="rounded-2xl bg-green-50 dark:bg-emerald-950/20 border border-green-200 dark:border-emerald-700 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
+                <p class="text-sm text-emerald-700 dark:text-emerald-200">Leituras em andamento</p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeReadingsCount }}</p>
             </div>
-            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Cursos ativos</p>
+            <div class="rounded-2xl bg-green-50 dark:bg-emerald-950/20 border border-green-200 dark:border-emerald-700 p-4 transition duration-300 hover:scale-105 hover:shadow-xl">
+                <p class="text-sm text-emerald-700 dark:text-emerald-200">Cursos ativos</p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3">{{ $activeCoursesCount }}</p>
             </div>
         </div>

@@ -7,130 +7,29 @@
     <!-- Cabeçalho com título e descrição -->
     <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/40 dark:to-cyan-900/40 rounded-lg p-8 shadow-md border border-blue-200 dark:border-slate-700">
         <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100">Relatório de Desempenho</h1>
-        <p class="text-slate-600 dark:text-slate-400 mt-2">Acompanhe sua produtividade semanal, mensal e anual</p>
+        <p class="text-slate-600 dark:text-slate-400 mt-2">Acompanhe sua produtividade mensal com detalhes e evolução</p>
     </div>
 
     <!-- ==================== RESUMO GERAL ==================== -->
-    <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">📊 Resumo Geral</h2>
-                <p class="text-slate-500 dark:text-slate-400 mt-1">Veja sua produtividade semanal e mensal com um ponto de atenção claro.</p>
+    <div class="bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-2xl p-6 shadow-md dark:shadow-lg border border-sky-200 dark:border-sky-700/50">
+        <div class="mb-6">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">📊 Resumo Geral</h2>
+            <p class="text-slate-600 dark:text-slate-400 mt-1">Veja uma visão rápida do seu desempenho e evolução no mês atual.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-emerald-100 dark:border-slate-700">
+                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">📊 Produtividade do mês</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $generalSummary['monthly'] }}%</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-violet-100 dark:border-slate-700">
+                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">🎯 Melhor indicador</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $generalSummary['bestIndicator'] }}</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-amber-100 dark:border-slate-700">
+                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">⚠️ Ponto de atenção</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ $generalSummary['attentionPoint'] }}</p>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Produtividade semanal</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['weekly'] }}%</p>
-            </div>
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Produtividade mensal</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['monthly'] }}%</p>
-            </div>
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Melhor indicador</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['bestIndicator'] }}</p>
-            </div>
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-                <p class="text-sm text-slate-500 dark:text-slate-400">Ponto de atenção</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $generalSummary['attentionPoint'] }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== DESEMPENHO SEMANAL ==================== -->
-    <div class="bg-light-card dark:bg-slate-800 rounded-lg p-8 shadow-md border border-light-border dark:border-slate-700">
-        
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">📅 Desempenho Semanal</h2>
-            <span class="text-sm text-slate-500">{{ $weeklyPerformance['startDate'] }} - {{ $weeklyPerformance['endDate'] }}</span>
-        </div>
-
-        <!-- Grid: Percentual + Dados -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <!-- Card: Círculo de Percentual -->
-            <div class="flex items-center justify-center">
-                <div class="relative w-48 h-48">
-                    <!-- Círculo de fundo -->
-                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
-                        <!-- Círculo vazio -->
-                        <circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" stroke-width="8" class="dark:stroke-slate-700"/>
-                        
-                        <!-- Círculo preeenchido (progresso) -->
-                        @if ($weeklyPerformance['color'] === 'red')
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#ef4444" stroke-width="8" 
-                                    stroke-dasharray="{{ ($weeklyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @elseif ($weeklyPerformance['color'] === 'yellow')
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#f59e0b" stroke-width="8" 
-                                    stroke-dasharray="{{ ($weeklyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @else
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" stroke-width="8" 
-                                    stroke-dasharray="{{ ($weeklyPerformance['percentage'] / 100) * 565.48 }}, 565.48"
-                                    stroke-linecap="round"/>
-                        @endif
-                    </svg>
-
-                    <!-- Texto no centro -->
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <p class="text-5xl font-bold text-slate-900 dark:text-slate-100">
-                            {{ $weeklyPerformance['percentage'] }}%
-                        </p>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            {{ $weeklyPerformance['classification'] }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Detalhes -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Tarefas Concluídas</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedTasks'] }}/{{ $weeklyPerformance['totalTasks'] }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-slate-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Hábitos Completados</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedHabits'] }}/{{ $weeklyPerformance['totalHabits'] }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas concluídas nesta semana</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['completedGoals'] }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Metas ativas</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['activeGoals'] }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">📚 Cursos com progresso registrado</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['coursesUpdated'] }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/40 dark:to-slate-800 rounded-lg p-6 border border-green-200 dark:border-green-700">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">📖 Leituras com progresso registrado</p>
-                    <p class="text-4xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $weeklyPerformance['readingsUpdated'] }}</p>
-                </div>
-            </div>
-
-            <div class="mt-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ $weeklyPerformance['feedbackTitle'] }}</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">{{ $weeklyPerformance['feedbackMessage'] }}</p>
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
-        <p class="text-sm text-slate-700 dark:text-slate-300">
-            ℹ️ O desempenho semanal é calculado com base na média dos indicadores registrados durante a semana, considerando tarefas, hábitos, metas, cursos e leituras. Isso facilita a compreensão da porcentagem exibida.
-        </p>
     </div>
 
     <!-- ==================== DESEMPENHO MENSAL ==================== -->
@@ -145,9 +44,9 @@
                 <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">📆 Desempenho do Mês ({{ $monthlyPerformance['month'] }})</h2>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Escolha o mês e marque os dias em que foi produtivo.</p>
             </div>
-            <form method="GET" action="{{ route('relatorio') }}" class="flex items-center gap-3">
+            <form method="GET" action="{{ route('relatorio') }}" class="flex items-center gap-3" id="month-form">
                 <label for="month" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Mês:</label>
-                <select id="month" name="month" onchange="this.form.submit()" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="month" name="month" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @foreach (range(1, 12) as $monthNumber)
                         <option value="{{ $monthNumber }}" {{ $monthlyPerformance['selectedMonth'] === $monthNumber ? 'selected' : '' }}>
                             {{ ucfirst($monthNames[$monthNumber - 1]) }}
@@ -225,16 +124,39 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div class="rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-4">
                     <p class="text-sm text-slate-500 dark:text-slate-400">{{ $monthlyComparison['previous']['label'] }}</p>
-                    <p class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['previous']['percentage'] }}%</p>
+                    <p id="monthly-comparison-previous-percentage" class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['previous']['percentage'] }}%</p>
                 </div>
                 <div class="rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-4">
                     <p class="text-sm text-slate-500 dark:text-slate-400">{{ $monthlyComparison['current']['label'] }}</p>
-                    <p class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['current']['percentage'] }}%</p>
+                    <p id="monthly-comparison-current-percentage" class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">{{ $monthlyComparison['current']['percentage'] }}%</p>
                 </div>
                 <div class="rounded-3xl bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 p-4">
                     <p class="text-sm text-slate-500 dark:text-slate-400">Resultado</p>
-                    <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">{{ $monthlyComparison['message'] }}</p>
+                    <p id="monthly-comparison-message" class="text-sm text-slate-700 dark:text-slate-300 mt-2">{{ $monthlyComparison['message'] }}</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: PERÍODO INDISPONÍVEL ==================== -->
+    <div id="future-month-overlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40"></div>
+    <div id="future-month-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6">
+            <div class="flex items-start gap-4">
+                <div class="rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 p-3 flex-shrink-0">
+                    <span class="text-2xl">⚠️</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Período indisponível</h3>
+                    <p class="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        O registro de desempenho está disponível apenas para o mês atual e meses anteriores. Selecione um período válido para consultar ou editar seu histórico de produtividade.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="close-future-month-modal" type="button" class="rounded-2xl bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition">
+                    Entendi
+                </button>
             </div>
         </div>
     </div>
@@ -244,6 +166,39 @@
             const token = '{{ csrf_token() }}';
             const month = {{ $monthlyPerformance['selectedMonth'] }};
             const year = {{ $monthlyPerformance['selectedYear'] }};
+            const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+
+            // ========== VALIDAÇÃO DE MÊS FUTURO ==========
+            const monthSelect = document.getElementById('month');
+            const monthForm = document.getElementById('month-form');
+            const futureMonthModal = document.getElementById('future-month-modal');
+            const futureMonthOverlay = document.getElementById('future-month-overlay');
+            const closeFutureMonthModal = document.getElementById('close-future-month-modal');
+
+            function closeFutureModal() {
+                futureMonthModal.classList.add('hidden');
+                futureMonthOverlay.classList.add('hidden');
+                monthSelect.value = month; // Restaurar mês atual
+            }
+
+            monthSelect.addEventListener('change', function () {
+                const selectedMonth = parseInt(this.value, 10);
+                const isValidMonth = (selectedMonth < currentMonth && year === currentYear) || (year < currentYear);
+
+                if (year === currentYear && selectedMonth > currentMonth) {
+                    // Mês futuro - mostrar modal
+                    futureMonthModal.classList.remove('hidden');
+                    futureMonthOverlay.classList.remove('hidden');
+                    monthSelect.value = month; // Restaurar mês anterior
+                } else {
+                    // Mês válido - fazer submit
+                    monthForm.submit();
+                }
+            });
+
+            closeFutureMonthModal.addEventListener('click', closeFutureModal);
+            futureMonthOverlay.addEventListener('click', closeFutureModal);
 
             document.querySelectorAll('.day-toggle').forEach(function (button) {
                 button.addEventListener('click', function () {
@@ -282,6 +237,9 @@
                         document.getElementById('monthly-percentage').textContent = data.percentage + '%';
                         document.getElementById('monthly-classification').textContent = data.classification;
                         document.getElementById('monthly-marked-days').textContent = data.markedDays + '/' + data.totalDays;
+                        document.getElementById('monthly-comparison-current-percentage').textContent = data.monthlyComparison.current.percentage + '%';
+                        document.getElementById('monthly-comparison-previous-percentage').textContent = data.monthlyComparison.previous.percentage + '%';
+                        document.getElementById('monthly-comparison-message').textContent = data.monthlyComparison.message;
                     })
                     .catch(function () {
                         window.location.reload();
@@ -343,7 +301,7 @@
     <!-- ==================== INFORMAÇÕES DE REALISMO ==================== -->
     <div class="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
         <p class="text-sm text-slate-700 dark:text-slate-300">
-            <strong>Nota:</strong> O percentual exibido é calculado automaticamente a partir dos dias marcados pelo usuário no mês selecionado. Quanto maior a frequência de registros produtivos, maior será o desempenho apresentado no relatório.
+            ℹ️ O desempenho mensal é calculado pela quantidade de dias marcados como produtivos no mês selecionado. Quanto maior a frequência de registros, maior será o percentual apresentado.
         </p>
     </div>
 

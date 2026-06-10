@@ -44,23 +44,29 @@
 
         <!-- META EM DESTAQUE -->
         @if($featuredGoal)
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 shadow-md dark:shadow-lg border-2 border-green-300 dark:border-green-700/50">
-            <h2 class="text-lg font-bold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
-                🎯 Meta Principal
+        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 shadow-md dark:shadow-lg border-2 border-blue-300 dark:border-blue-700/50">
+            <h2 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+                ⭐ Meta Principal
             </h2>
-            <h3 class="text-xl font-bold text-green-950 dark:text-green-50 mb-4">{{ $featuredGoal->title }}</h3>
-            @php
-                $percent = $featuredGoal->target_value > 0 ? round(($featuredGoal->current_value / $featuredGoal->target_value) * 100) : 0;
-            @endphp
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-green-900 dark:text-green-100">Progresso</span>
-                    <span class="text-sm font-bold text-green-700 dark:text-green-300">{{ $percent }}%</span>
+            <h3 class="text-2xl font-bold text-blue-950 dark:text-blue-50 mb-6">{{ $featuredGoal->title }}</h3>
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                        @if($featuredGoal->status)
+                            ✅ Concluída
+                        @else
+                            ⏳ Em andamento
+                        @endif
+                    </span>
                 </div>
-                <div class="w-full bg-green-200 dark:bg-green-900 h-4 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 h-4 rounded-full transition-all duration-500" style="width: {{ min($percent, 100) }}%"></div>
+                <div class="text-sm text-blue-700 dark:text-blue-300">
+                    📅 Criada em {{ \Carbon\Carbon::parse($featuredGoal->created_at)->format('d/m/Y') }}
                 </div>
-                <p class="text-sm text-green-700 dark:text-green-300 font-medium">{{ $featuredGoal->current_value }} / {{ $featuredGoal->target_value }}</p>
+                @if($featuredGoal->status)
+                    <div class="text-sm text-blue-700 dark:text-blue-300">
+                        ✨ Concluída em {{ \Carbon\Carbon::parse($featuredGoal->updated_at)->format('d/m/Y') }}
+                    </div>
+                @endif
             </div>
         </div>
         @endif
@@ -79,26 +85,19 @@
                         <thead>
                             <tr class="bg-light-bg dark:bg-slate-900 border-b-2 border-light-border dark:border-slate-700">
                                 <th class="text-left py-4 px-5 text-slate-900 dark:text-slate-100 font-semibold">Meta</th>
-                                <th class="text-left py-4 px-5 text-slate-900 dark:text-slate-100 font-semibold">Progresso</th>
+                                <th class="text-left py-4 px-5 text-slate-900 dark:text-slate-100 font-semibold">Criada em</th>
                                 <th class="text-left py-4 px-5 text-slate-900 dark:text-slate-100 font-semibold">Status</th>
                                 <th class="text-left py-4 px-5 text-slate-900 dark:text-slate-100 font-semibold">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-light-border dark:divide-slate-700">
                             @foreach($goals as $goal)
-                                @php
-                                    $percent = $goal->target_value > 0 ? round(($goal->current_value / $goal->target_value) * 100) : 0;
-                                @endphp
                                 <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-200">
                                     <td class="py-4 px-5 text-slate-900 dark:text-slate-100 font-medium">
                                         {{ $goal->title }}
                                     </td>
-                                    <td class="py-4 px-5">
-                                        <div class="text-sm text-slate-600 dark:text-slate-400 mb-2">{{ $goal->current_value }} / {{ $goal->target_value }}</div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
-                                            <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 h-3 rounded-full transition-all duration-500" style="width: {{ min($percent, 100) }}%"></div>
-                                        </div>
-                                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-2 font-bold">{{ $percent }}%</div>
+                                    <td class="py-4 px-5 text-slate-600 dark:text-slate-400 text-sm">
+                                        {{ \Carbon\Carbon::parse($goal->created_at)->format('d/m/Y') }}
                                     </td>
                                     <td class="py-4 px-5">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
@@ -106,7 +105,7 @@
                                         </span>
                                     </td>
                                     <td class="py-4 px-5 space-x-3 text-sm">
-                                        <a href="{{ route('goals.edit', $goal) }}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">Editar</a>
+                                        <a href="{{ route('goals.edit', $goal) }}" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all duration-200 shadow-sm dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-700">Editar</a>
                                         <a href="{{ route('goals.set-featured', $goal) }}" class="inline-flex items-center px-4 py-2 {{ $goal->is_featured ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 hover:bg-gray-700' }} dark:{{ $goal->is_featured ? 'bg-yellow-600 dark:hover:bg-yellow-700' : 'bg-gray-700 dark:hover:bg-gray-600' }} text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 border border-slate-200 dark:border-slate-700">
                                             {{ $goal->is_featured ? '⭐ Principal' : '☆ Tornar Principal' }}
                                         </a>
@@ -126,6 +125,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if($goals->hasPages())
+                    <div class="mt-6">
+                        {{ $goals->links() }}
+                    </div>
+                @endif
             @endif
         </div>
 
@@ -138,17 +143,11 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($completedGoals->take(5) as $goal)
-                @php
-                    $percent = $goal->target_value > 0 ? round(($goal->current_value / $goal->target_value) * 100) : 0;
-                @endphp
                 <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                    <h3 class="font-semibold text-green-800 dark:text-green-200 mb-2">{{ $goal->title }}</h3>
-                    <p class="text-sm text-green-600 dark:text-green-400 mb-2">{{ $goal->current_value }} / {{ $goal->target_value }}</p>
-                    <div class="w-full bg-green-200 dark:bg-green-900 h-2 rounded-full overflow-hidden mb-2">
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500" style="width: {{ min($percent, 100) }}%"></div>
+                    <h3 class="font-semibold text-green-800 dark:text-green-200 mb-3">✅ {{ $goal->title }}</h3>
+                    <div class="text-sm text-green-600 dark:text-green-400">
+                        📅 Concluída em {{ \Carbon\Carbon::parse($goal->updated_at)->format('d/m/Y') }}
                     </div>
-                    <div class="text-xs text-green-600 dark:text-green-400 font-bold mb-1">{{ $percent }}%</div>
-                    <div class="text-xs text-green-600 dark:text-green-400">Concluída em {{ $goal->updated_at->format('d/m/Y') }}</div>
                 </div>
                 @endforeach
             </div>
@@ -160,17 +159,11 @@
                 </summary>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     @foreach($completedGoals->skip(5) as $goal)
-                    @php
-                        $percent = $goal->target_value > 0 ? round(($goal->current_value / $goal->target_value) * 100) : 0;
-                    @endphp
                     <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                        <h3 class="font-semibold text-green-800 dark:text-green-200 mb-2">{{ $goal->title }}</h3>
-                        <p class="text-sm text-green-600 dark:text-green-400 mb-2">{{ $goal->current_value }} / {{ $goal->target_value }}</p>
-                        <div class="w-full bg-green-200 dark:bg-green-900 h-2 rounded-full overflow-hidden mb-2">
-                            <div class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500" style="width: {{ min($percent, 100) }}%"></div>
+                        <h3 class="font-semibold text-green-800 dark:text-green-200 mb-3">✅ {{ $goal->title }}</h3>
+                        <div class="text-sm text-green-600 dark:text-green-400">
+                            📅 Concluída em {{ \Carbon\Carbon::parse($goal->updated_at)->format('d/m/Y') }}
                         </div>
-                        <div class="text-xs text-green-600 dark:text-green-400 font-bold mb-1">{{ $percent }}%</div>
-                        <div class="text-xs text-green-600 dark:text-green-400">Concluída em {{ $goal->updated_at->format('d/m/Y') }}</div>
                     </div>
                     @endforeach
                 </div>
@@ -178,7 +171,7 @@
             @endif
 
             <div class="mt-6 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-300">
-                <strong>Nota:</strong> A taxa de conclusão considera o total de metas concluídas em relação ao total de metas cadastradas. Exemplo: 5 metas concluídas de 5 cadastradas = 100%. O percentual exibido em cada meta representa o progresso real registrado antes de sua finalização, proporcionando um acompanhamento mais preciso da evolução do usuário.
+                <strong>ℹ️ Nota:</strong> Você concluiu <strong>{{ $completedGoals->count() }}</strong> meta(s) até o momento. Parabéns pelos objetivos alcançados! Continue definindo novas metas e acompanhando seu progresso pessoal.
             </div>
         </div>
         @endif

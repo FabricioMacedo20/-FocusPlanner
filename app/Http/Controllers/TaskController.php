@@ -43,7 +43,8 @@ class TaskController extends Controller
         $productivity = $totalTasksToday > 0 ? round(($tasksCompletedToday / $totalTasksToday) * 100) : 0;
 
         $habitsCompletedToday = Habit::where('user_id', $userId)
-            ->whereDate('created_at', $today)
+            ->whereNotNull('last_completed_at')
+            ->whereDate('last_completed_at', $today)
             ->count();
 
         // Metas ativas no Dashboard devem seguir a mesma lógica do módulo Metas:
@@ -99,11 +100,12 @@ class TaskController extends Controller
     // Diferença da Dashboard: permite CRIAR e DELETAR tarefas
     public function planner()
     {
-        // 📋 Buscar tarefas pendentes do usuário no planner
-        $tasks = Task::where('user_id', Auth::id())
+        // 📋 Buscar tarefas pendentes do usuário no planner com paginação
+        $tasksQuery = Task::where('user_id', Auth::id())
                     ->where('status', false)
-                    ->orderBy('date')
-                    ->get();
+                    ->orderBy('date');
+
+        $tasks = $tasksQuery->paginate(5)->withQueryString();
 
         // Buscar tarefas concluídas hoje
         $today = Carbon::now()->format('Y-m-d');
@@ -121,15 +123,24 @@ class TaskController extends Controller
     {
         // Validar entrada para evitar dados inválidos
         $request->validate([
-            'title' => 'required|string|max:255',
-            'date' => 'required|date',
-            'priority' => 'required|in:baixa,media,alta',
+            'title' => ['required', 'string', 'min:3', 'max:255', 'not_regex:/^\s*$/'],
+            'date' => ['required', 'date'],
+            'priority' => ['required', 'in:baixa,media,alta'],
+        ], [
+            'title.required' => 'O título é obrigatório.',
+            'title.min' => 'O título deve ter pelo menos 3 caracteres.',
+            'title.max' => 'O título não pode ter mais de 255 caracteres.',
+            'title.not_regex' => 'O título não pode ficar em branco.',
+            'date.required' => 'Informe uma data válida.',
+            'date.date' => 'Informe uma data válida.',
+            'priority.required' => 'Selecione uma prioridade.',
+            'priority.in' => 'Selecione uma prioridade válida.',
         ]);
 
         // Criar nova tarefa do dia no banco
         Task::create([
             'user_id' => Auth::id(),
-            'title' => $request->title,
+            'title' => trim($request->title),
             'date' => Carbon::now()->format('Y-m-d'),
             'priority' => $request->priority,
             'status' => false // false = pendente, true = concluída
@@ -142,16 +153,11 @@ class TaskController extends Controller
 
     public function complete($id)
     {
-        // Buscar tarefa pelo ID
-        $task = Task::find($id);
+        // Buscar tarefa pelo ID e pelo usuário logado
+        $task = Task::where('user_id', Auth::id())->find($id);
 
-        // Verificar se a tarefa existe e pertence ao usuário logado
-        if($task && $task->user_id == Auth::id())
-        {
-            // Marcar tarefa como concluída
+        if ($task) {
             $task->status = true;
-
-            // Salvar no banco de dados
             $task->save();
         }
 
@@ -162,11 +168,9 @@ class TaskController extends Controller
 
     public function delete($id)
     {
+        $task = Task::where('user_id', Auth::id())->find($id);
 
-        $task = Task::find($id);
-
-        if($task && $task->user_id == Auth::id())
-        {
+        if ($task) {
             $task->delete();
         }
 
@@ -181,17 +185,13 @@ class TaskController extends Controller
     // status: 0 = A Fazer, 2 = Em Andamento, 1 = Concluído
     public function updateStatus($id, $status)
     {
-        // Buscar a tarefa pelo ID
-        $task = Task::find($id);
+        $task = Task::where('user_id', Auth::id())->find($id);
+        $statusValue = (int) $status;
 
-        // Verificar se a tarefa existe e pertence ao usuário logado
-        if($task && $task->user_id == Auth::id())
-        {
-            // Atualizar o status da tarefa
-            $task->status = (int) $status;
+        if ($task && in_array($statusValue, [0, 1, 2], true)) {
+            $task->status = $statusValue;
             $task->save();
 
-            // Retornar sucesso com mensagem
             return redirect()->back()->with('success', 'Tarefa movida com sucesso!');
         }
 
