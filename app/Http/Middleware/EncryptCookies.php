@@ -8,11 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EncryptCookies
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    // Criptografa os cookies da requisição
     public function handle(Request $request, Closure $next): Response
     {
         return $next($request);

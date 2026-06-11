@@ -17,8 +17,8 @@ Instruções de uso;
 3. Gere a chave da aplicação:
 `php artisan key:generate`
 4. Configure as credenciais do banco de dados em `.env`.
-5. Execute as migrações:
-`php artisan migrate`
+5. Execute as migrações com dados de teste:
+`php artisan migrate --seed`
 6. Instale dependências de front-end:
 `npm install`
 7. Compile os assets:
@@ -29,13 +29,32 @@ Instruções de uso;
 `php artisan serve`
 - Acesse o app pelo navegador em: `http://127.0.0.1:8000`
 
-4. Autenticação
-- O aplicativo usa autenticação Laravel Breeze.
-- Acesse `/login` para entrar ou `/register` para criar uma conta.
-- Para testar rapidamente com um usuário já existente, use a rota de debug:
-`/debug-login`
+4. Autenticação e Testes
+O aplicativo usa autenticação Laravel Breeze. Para testar:
 
-5. Páginas principais
+- Acesse `/login` para entrar com uma conta
+- O comando `php artisan migrate --seed` cria automaticamente usuários de teste
+
+## Usuários para Demonstração e Testes
+
+Após executar `php artisan migrate --seed`, os seguintes usuários estarão disponíveis:
+
+| Nome | E-mail | Senha |
+|------|--------|-------|
+| Admin | admin@focusplanner.com | admin123 |
+| Luiz Fabricio | luizfabricio0811@icloud.com | password |
+| Test User | test@example.com | password |
+
+Use qualquer uma dessas credenciais para explorar todas as funcionalidades do sistema. Todos os usuários possuem acesso total a todos os recursos.
+
+5. Idioma
+Todas as mensagens de autenticação, validações e interface estão em **português brasileiro**:
+- Mensagens de erro de login
+- Validações de formulários
+- Labels e botões
+- Mensagens de sucesso e confirmação
+
+6. Páginas principais
 - `/dashboard`
   - Visão geral das tarefas e progresso diário.
 - `/planner`
@@ -43,7 +62,7 @@ Instruções de uso;
 - `/relatorio`
   - Relatórios de produtividade semanal, mensal e anual.
 
-6. Funcionalidades
+7. Funcionalidades
 - Tarefas diárias:
 Criar, completar e excluir tarefas.
 
@@ -59,7 +78,7 @@ Controlar progresso de cursos e visualizar detalhes.
 - Leituras:
 Registrar leituras e marcar páginas ou itens como concluídos.
 
-7. Rotas importantes
+8. Rotas importantes
 - `GET /dashboard`
 - `GET /planner`
 - `POST /task/store`
@@ -69,7 +88,7 @@ Registrar leituras e marcar páginas ou itens como concluídos.
 - `POST /relatorio/days`
 - Rotas de recursos protegidas para `habits`, `goals`, `courses` e `readings`.
 
-8. Comandos úteis
+9. Comandos úteis
 - Rodar testes:
 `composer test`
 - Limpar cache de configuração:

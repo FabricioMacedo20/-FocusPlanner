@@ -1,4 +1,5 @@
 <?php
+// Comando inspire
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 

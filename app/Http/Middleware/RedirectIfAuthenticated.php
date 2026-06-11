@@ -8,11 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    // Redireciona usuários autenticados para o dashboard
     public function handle(Request $request, Closure $next): Response
     {
         return $next($request);

@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
+        <!-- Fontes -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
@@ -21,11 +21,11 @@
                 <div class="relative w-full max-w-[1000px] mx-auto">
                     <div class="rounded-2xl backdrop-blur-sm bg-white/5 shadow-2xl overflow-hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2">
-                            <!-- Left Info Panel -->
+                            <!-- Painel de informações esquerdo -->
                             <div class="hidden md:flex flex-col gap-6 p-10 bg-[linear-gradient(135deg,rgba(10,25,40,0.3),rgba(5,10,20,0.25))]">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-sky-400 shadow-md">
-                                        <!-- Icon: simple SVG -->
+                                        <!-- Ícone SVG -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
                                             <circle cx="12" cy="12" r="9" />
@@ -40,7 +40,7 @@
                                 <ul class="mt-4 space-y-3">
                                     <li class="flex items-center gap-3 text-sm">
                                         <span class="inline-flex items-center justify-center w-8 h-8 rounded bg-white/6 text-sky-300">
-                                            <!-- icon -->
+                                            <!-- ícone -->
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
                                             </svg>
@@ -77,7 +77,7 @@
                                 <div class="mt-auto text-xs text-gray-400">Produto profissional para foco e produtividade.</div>
                             </div>
 
-                            <!-- Right Form Panel -->
+                            <!-- Painel de formulário direito -->
                             <div class="p-8 flex items-center justify-center">
                                 <div class="w-full max-w-md">
                                     {{ $slot }}

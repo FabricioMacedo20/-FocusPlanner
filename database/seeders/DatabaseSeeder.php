@@ -10,12 +10,10 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
+ 
     public function run(): void
     {
-        // User::factory(10)->create();
+       
 
         if (!User::where('email', 'luizfabricio0811@icloud.com')->exists()) {
             User::factory()->create([
@@ -35,6 +33,15 @@ class DatabaseSeeder extends Seeder
             User::factory()->create([
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
+            ]);
+        }
+
+        if (!User::where('email', 'admin@focusplanner.com')->exists()) {
+            User::create([
+                'name' => 'Admin',
+                'email' => 'admin@focusplanner.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+                'email_verified_at' => now(),
             ]);
         }
     }
