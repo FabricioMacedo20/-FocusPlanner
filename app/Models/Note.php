@@ -16,7 +16,7 @@ class Note extends Model
         'date',         // Data da nota (para atividades do dia)
         'important',   // Marca se a nota está priorizada
         'completed',   // Marca se a nota foi concluída
-        'status',      // Status no Kanban: todo, in_progress, done
+        'status',      // Status da nota: todo, in_progress, done
     ];
 
     protected $casts = [

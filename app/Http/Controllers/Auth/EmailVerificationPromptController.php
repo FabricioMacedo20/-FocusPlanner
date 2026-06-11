@@ -1,5 +1,5 @@
 <?php
-// Verificação de email: Exibir um prompt para os usuários verificarem seus emails antes de acessar certas áreas do aplicativo
+// Prompt de verificação de email
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -9,9 +9,7 @@ use Illuminate\View\View;
 
 class EmailVerificationPromptController extends Controller
 {
-    /**
-     * Display the email verification prompt.
-     */
+    // Exibe prompt de verificação
     public function __invoke(Request $request): RedirectResponse|View
     {
         return $request->user()->hasVerifiedEmail()

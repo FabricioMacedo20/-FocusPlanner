@@ -1,5 +1,5 @@
 <?php
-// Verificação de email: Marcar o email do usuário autenticado como verificado e disparar eventos relacionados
+// Verificação de email
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -9,9 +9,7 @@ use Illuminate\Http\RedirectResponse;
 
 class VerifyEmailController extends Controller
 {
-    /**
-     * Mark the authenticated user's email address as verified.
-     */
+    // Marca email como verificado
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {

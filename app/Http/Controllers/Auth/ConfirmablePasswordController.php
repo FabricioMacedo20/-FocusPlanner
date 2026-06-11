@@ -1,5 +1,5 @@
 <?php
-// Segurança e validação: Confirmar a senha do usuário antes de permitir ações sensíveis
+// Confirma senha para ações sensíveis
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,17 +11,13 @@ use Illuminate\View\View;
 
 class ConfirmablePasswordController extends Controller
 {
-    /**
-     * Show the confirm password view.
-     */
+    // Exibe confirmação de senha
     public function show(): View
     {
         return view('auth.confirm-password');
     }
 
-    /**
-     * Confirm the user's password.
-     */
+    // Confirma a senha do usuário
     public function store(Request $request): RedirectResponse
     {
         if (! Auth::guard('web')->validate([

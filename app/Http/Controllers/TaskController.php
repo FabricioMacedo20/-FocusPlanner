@@ -16,12 +16,12 @@ class TaskController extends Controller
 
     public function __construct()
     {
-        // 🔐 Middleware de autenticação: garante que APENAS usuários logados acessem este controller
+        // Middleware de autenticação: garante que APENAS usuários logados acessem este controller
         // Conexão: Rota auth.php → aqui → protege dashboard e planner
         $this->middleware('auth');
     }
 
-    // 📊 DASHBOARD: Mostra resumo visual de tarefas e produtividade da semana
+    // DASHBOARD: Mostra resumo visual de tarefas e produtividade da semana
     // Exibido em: resources/views/dashboard.blade.php
     public function dashboard()
     {
@@ -100,7 +100,7 @@ class TaskController extends Controller
     // Diferença da Dashboard: permite CRIAR e DELETAR tarefas
     public function planner()
     {
-        // 📋 Buscar tarefas pendentes do usuário no planner com paginação
+        // Buscar tarefas pendentes do usuário no planner com paginação
         $tasksQuery = Task::where('user_id', Auth::id())
                     ->where('status', false)
                     ->orderBy('date');
@@ -178,9 +178,7 @@ class TaskController extends Controller
 
     }
 
-    // 📊 KANBAN: Exibe tarefas em um quadro kanban com 3 colunas
-    // Tarefas agrupadas por status: 0 = A Fazer, 2 = Em Andamento, 1 = Concluído
-    // 🔄 ATUALIZAR STATUS: Altera o status da tarefa no kanban
+    // Atualiza o status da tarefa
     // POST /task/update-status/{id}/{status}
     // status: 0 = A Fazer, 2 = Em Andamento, 1 = Concluído
     public function updateStatus($id, $status)

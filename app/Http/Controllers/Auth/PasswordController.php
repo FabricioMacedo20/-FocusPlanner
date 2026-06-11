@@ -1,5 +1,5 @@
 <?php
-// Gerenciamento de senhas: Permitir que os usuários atualizem suas senhas, garantindo que a senha atual seja confirmada e que a nova senha atenda aos requisitos de segurança
+// Atualiza senha
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -10,9 +10,7 @@ use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
-    /**
-     * Update the user's password.
-     */
+    // Atualiza a senha do usuário
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validateWithBag('updatePassword', [

@@ -1,5 +1,5 @@
 <?php
-// Autenticação e gerenciamento de sessões: Controlar o processo de login, logout e manutenção da sessão do usuário
+// Autenticação e sessão
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,17 +11,13 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
+    // Exibe a tela de login
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
+    // Processa o login
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -31,9 +27,7 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
+    // Faz logout
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

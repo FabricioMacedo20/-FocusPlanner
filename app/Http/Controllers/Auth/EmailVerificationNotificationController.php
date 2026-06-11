@@ -1,5 +1,5 @@
 <?php
-//Segurança e validação: Verificar se o usuário já verificou o email antes de enviar nova notificação
+// Reenvio de verificação de email
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class EmailVerificationNotificationController extends Controller
 {
-    /**
-     * Send a new email verification notification.
-     */
+    // Reenvia o link de verificação
     public function store(Request $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
