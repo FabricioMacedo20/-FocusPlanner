@@ -37,13 +37,11 @@ O aplicativo usa autenticação Laravel Breeze. Para testar:
 
 ## Usuários para Demonstração e Testes
 
-Após executar `php artisan migrate --seed`, os seguintes usuários estarão disponíveis:
+Após executar `php artisan migrate --seed`, o seguinte usuário estará disponíveL:
 
 | Nome | E-mail | Senha |
 |------|--------|-------|
 | Admin | admin@focusplanner.com | admin123 |
-
-Use qualquer uma dessas credenciais para explorar todas as funcionalidades do sistema. Todos os usuários possuem acesso total a todos os recursos.
 
 ## Status do Projeto
 **FocusPlanner - MVP Funcional**
