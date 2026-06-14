@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+// Relatório mensal com registro de atividades do usuário
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
