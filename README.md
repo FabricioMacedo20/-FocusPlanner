@@ -42,7 +42,6 @@ Após executar `php artisan migrate --seed`, os seguintes usuários estarão dis
 | Nome | E-mail | Senha |
 |------|--------|-------|
 | Admin | admin@focusplanner.com | admin123 |
-| Luiz Fabrício | luizfabricio0811@icloud.com | ------ |
 
 Use qualquer uma dessas credenciais para explorar todas as funcionalidades do sistema. Todos os usuários possuem acesso total a todos os recursos.
 
