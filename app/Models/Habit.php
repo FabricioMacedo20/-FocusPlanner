@@ -16,10 +16,17 @@ class Habit extends Model
         'last_completed_at',    // Data do ultimo dia que foi marcado como concluido
     ];
 
+    protected $casts = [
+        'streak' => 'integer',
+        'last_completed_at' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // CASTS: Converte colunas do banco para tipos PHP automaticamente
     // last_completed_at eh armazenado como string no BD, mas aqui vira objeto Carbon
     // Isso permite usar operacoes de data como: $habit->last_completed_at->format('d/m/Y')
-    protected $casts = [
-        'last_completed_at' => 'date',  // String do BD -> Carbon/Date object
-    ];
 }

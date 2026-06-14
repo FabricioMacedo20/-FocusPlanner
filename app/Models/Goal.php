@@ -18,5 +18,17 @@ class Goal extends Model
         'is_featured',      // Meta principal (true = principal, false = não)
     ];
 
+    protected $casts = [
+        'target_value' => 'integer',
+        'current_value' => 'integer',
+        'status' => 'boolean',
+        'is_featured' => 'boolean',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Progresso calculado na VIEW como: (current_value / target_value) * 100
 }

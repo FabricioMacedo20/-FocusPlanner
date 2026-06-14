@@ -15,6 +15,15 @@ class Course extends Model
         'content',      // Conteúdo do curso em formato de texto/anotações
     ];
 
+    protected $casts = [
+        'progress' => 'integer',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Progresso eh simples: valor direto de 0 a 100
     // Barra visual na view calcula: width = progress%
 }

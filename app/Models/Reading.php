@@ -16,6 +16,17 @@ class Reading extends Model
         'completed',        // Se o livro foi concluído (true/false)
     ];
 
+    protected $casts = [
+        'total_pages' => 'integer',
+        'current_page' => 'integer',
+        'completed' => 'boolean',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Progresso calculado na VIEW como: (current_page / total_pages) * 100
     // Exemplo: se total = 400 e current = 100, entao progresso = 25%
 }

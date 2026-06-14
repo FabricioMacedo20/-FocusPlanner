@@ -19,4 +19,9 @@ class MonthlyReport extends Model
     protected $casts = [
         'days_marked' => 'array',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

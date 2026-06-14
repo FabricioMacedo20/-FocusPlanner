@@ -42,13 +42,20 @@ Após executar `php artisan migrate --seed`, os seguintes usuários estarão dis
 | Nome | E-mail | Senha |
 |------|--------|-------|
 | Admin | admin@focusplanner.com | admin123 |
-| Luiz Fabricio | luizfabricio0811@icloud.com | password |
-| Test User | test@example.com | password |
+| Luiz Fabrício | luizfabricio0811@icloud.com | ------ |
 
 Use qualquer uma dessas credenciais para explorar todas as funcionalidades do sistema. Todos os usuários possuem acesso total a todos os recursos.
 
+## Status do Projeto
+**FocusPlanner - MVP Funcional**
+
+- Projeto desenvolvido para aprendizado e prática com Laravel;
+- Estrutura preparada para evolução contínua;
+- Arquitetura organizada e pronta para expansão;
+- Melhorias futuras incluem testes automatizados, otimizações adicionais e recursos de integração de apps.
+
 5. Idioma
-Todas as mensagens de autenticação, validações e interface estão em **português brasileiro**:
+Todas as mensagens de autenticação, validações e interface estão em português, incluindo:
 - Mensagens de erro de login
 - Validações de formulários
 - Labels e botões
